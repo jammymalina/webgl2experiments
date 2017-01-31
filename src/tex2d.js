@@ -16,6 +16,16 @@ export default function tex2d() {
         return this;
     };
 
+    this.setPixel = function(x, y, color) {
+        if (x < 0 || x >= width || y < 0 || y >= height) {
+            return;
+        }
+        const index = getIndex(x, y);
+        for (let i = 0; i < Math.min(color.length, components); i++) {
+            data[index + i] = color[i];
+        }
+    };
+
     this.fill = function(color) {
         for (let y = 0; y < height; y++) {
             for (let x = 0; x < width; x++) {
@@ -37,6 +47,33 @@ export default function tex2d() {
                 }
             }
         }
+        return this;
+    };
+
+    this.furTexture(density, furColor, defaultColor) {
+        furColor = typeof furColor === 'undefined' || furColor.length < components ?
+            new Uint8Array(components).fill(255) : furColor;
+        defaultColor = typeof defaultColor === 'undefined' ?
+            new Uint8Array(components).fill(0) : defaultColor;
+
+        this.fill(defaultColor);
+
+        const pixelCount = width * height;
+        const numStrands = Math.floor(density * pixelCount);
+
+        const randomInt = (min, max) => {
+            return Math.floor(Math.random() * (max - min + 1)) + min;
+        }
+
+        for (let i = 0; i < numStrands; i++) {
+            let x = randomInt(0, width  - 1);
+            let y = randomInt(0, height - 1);
+            const index = getIndex(x, y);
+            for (let i = 0; i < Math.min(furColor.length, components); i++) {
+                data[index + i] = furColor[i];
+            }
+        }
+
         return this;
     };
 

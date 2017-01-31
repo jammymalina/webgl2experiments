@@ -47,6 +47,7 @@ export default class Shader {
         const program = this.program;
         let shaders = [];
 
+        gl.useProgram(program);
         for (let i = 0; i < shaders.length; i++) {
             const shader = this._compileShader(shaders[i].type, shaders[i].src);
             if (shader !== null) {
@@ -57,14 +58,20 @@ export default class Shader {
 
         gl.linkProgram(program);
         if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-			console.error("Error creating shader program.",gl.getProgramInfoLog(prog));
+			console.error("Error creating shader program.", gl.getProgramInfoLog(program));
 			gl.deleteProgram(program);
             return false;
 		}
 
         shaders.forEach(shader => gl.deleteShader(shader));
+        uniforms.forEach(uniform => {
+            if (!this.hasUniform(uniform)) {
+                this._uniforms[uniform] = gl.getUniformLocation(program, uniform);
+            }
+        });
         this._linked = true;
 
+        gl.useProgram(null);
         return true;
     }
 
@@ -97,8 +104,12 @@ export default class Shader {
         return this._program;
     }
 
-    get uniformLocation(name) {
-        if (name in this._uniforms) {
+    hasUniform(name) {
+        return name in this._uniforms;
+    }
+
+    getUniformLocation(name) {
+        if (this.hasUniform(name)) {
             return this._uniforms[name];
         }
         return -1;
