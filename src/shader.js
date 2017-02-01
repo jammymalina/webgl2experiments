@@ -115,6 +115,50 @@ export default class Shader {
         return -1;
     }
 
+    setUniform(name, val, f) {
+        if (!this.isLinked() || !this.hasUniform(name)) return;
+        this.gl[f](this.getUniformLocation(name), val);
+    }
+
+    setMatrixUniform(name, val, transpose, f) {
+        if (!this.isLinked() || !this.hasUniform(name)) return;
+        this.gl[f](this.getUniformLocation(name), transpose, val);
+    }
+
+    setUniform_float(name, val) {
+        this.setUniform(name, val, "uniform1f");
+    }
+    setUniform_int(name, val) {
+        this.setUniform(name, val, "uniform1i");
+    }
+    setUniform_vec2(name, val) {
+        this.setUniform(name, val, "uniform2fv");
+    }
+    setUniform_vec3(name, val) {
+        this.setUniform(name, val, "uniform3fv");
+    }
+    setUniform_vec4(name, val) {
+        this.setUniform(name, val, "uniform4fv");
+    }
+    setUniform_ivec2(name, val) {
+        this.setUniform(name, val, "uniform2iv");
+    }
+    setUniform_ivec3(name, val) {
+        this.setUniform(name, val, "uniform3iv");
+    }
+    setUniform_ivec4(name, val) {
+        this.setUniform(name, val, "uniform4iv");
+    }
+    setUniform_mat2(name, val) {
+        this.setMatrixUniform(name, val, false, "uniformMatrix2fv");
+    }
+    setUniform_mat3(name, val) {
+        this.setMatrixUniform(name, val, false, "uniformMatrix3fv");
+    }
+    setUniform_mat4(name, val) {
+        this.setMatrixUniform(name, val, false, "uniformMatrix4fv");
+    }
+
     isLinked() {
         return this._linked;
     }

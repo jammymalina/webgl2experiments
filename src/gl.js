@@ -24,5 +24,25 @@ export default function GLInstance(canvasID) {
         return this;
     };
 
+    gl.getTypeByteSize = function(type) {
+        switch (type) {
+            case gl.BYTE:
+                return 1;
+            case gl.SHORT:
+                return 2;
+            case gl.INT:
+                return 4;
+            case gl.UNSIGNED_BYTE:
+                return 1;
+            case gl.UNSIGNED_SHORT:
+                return 2;
+            case gl.UNSIGNED_INT:
+                return 4;
+            case gl.FLOAT:
+                return 4;
+        }
+        return 0;
+    };
+
     return gl;
 }

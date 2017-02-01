@@ -55,18 +55,18 @@ void main() {
     vec3 H5 = texture(decal, tex0 + 2.0 * dy).xyz;
     vec3 F4 = texture(decal, tex0 + 2.0 * dx).xyz;
 
-    vec4 b = vec4(yuv_weighted, 0) * mat4(vec4(B, 0), vec4(D, 0), vec4(H, 0), vec4(F, 0));
-    vec4 c = vec4(yuv_weighted, 0) * mat4(vec4(C, 0), vec4(A, 0), vec4(G, 0), vec4(I, 0));
-    vec4 e = vec4(yuv_weighted, 0) * mat4(vec4(E, 0), vec4(E, 0), vec4(E, 0), vec4(E, 0));
+    vec4 b = yuv_weighted * mat4x3(B, D, H, F);
+    vec4 c = yuv_weighted * mat4x3(C, A, G, I);
+    vec4 e = yuv_weighted * mat4x3(E, E, E, E);
     vec4 d = b.yzwx;
     vec4 f = b.wxyz;
     vec4 g = c.zwxy;
     vec4 h = b.zwxy;
     vec4 i = c.wxyz;
 
-    vec4 i4 = vec4(yuv_weighted, 0) * mat4(vec4(I4, 0), vec4(C1, 0), vec4(A0, 0), vec4(G5, 0));
-    vec4 i5 = vec4(yuv_weighted, 0) * mat4(vec4(I5, 0), vec4(C4, 0), vec4(A1, 0), vec4(G0, 0));
-    vec4 h5 = vec4(yuv_weighted, 0) * mat4(vec4(H5, 0), vec4(F4, 0), vec4(B1, 0), vec4(D0, 0));
+    vec4 i4 = yuv_weighted * mat4x3(I4, C1, A0, G5);
+    vec4 i5 = yuv_weighted * mat4x3(I5, C4, A1, G0);
+    vec4 h5 = yuv_weighted * mat4x3(H5, F4, B1, D0);
     vec4 f4 = h5.yzwx;
 
     vec4 Ao = vec4(1.0, -1.0, -1.0, 1.0);
