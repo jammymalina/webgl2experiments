@@ -60,7 +60,7 @@ export default class BasicMesh {
         }
     }
 
-    create({ positions, indices, normals, uvs, mode }) {
+    create({ vertices, indices, normals, uvs, mode }) {
         if (this.vao !== null) {
             return;
         }
@@ -77,10 +77,10 @@ export default class BasicMesh {
         let vertexSizes = [];
 
         let f = [];
-        if (typeof positions !== 'undefined') {
-            f.push(positions.data);
-            const vsize = positions.dimension || 3;
-            bufferSizes.push(Math.floor(positions.data.length / vsize));
+        if (typeof vertices !== 'undefined') {
+            f.push(vertices.data);
+            const vsize = vertices.dimension || 3;
+            bufferSizes.push(Math.floor(vertices.data.length / vsize));
             vertexSizes.push(vsize);
         }
         if (typeof normals !== 'undefined') {
@@ -105,9 +105,9 @@ export default class BasicMesh {
 
         let normal_offset = 0;
         let uv_offset = 0;
-        if (typeof positions !== 'undefined') {
-            const dimension = positions.dimension || 3;
-            const totalByteSize = positions.totalByteSize || dimension * gl.getTypeByteSize(gl.FLOAT);
+        if (typeof vertices !== 'undefined') {
+            const dimension = vertices.dimension || 3;
+            const totalByteSize = vertices.totalByteSize || dimension * gl.getTypeByteSize(gl.FLOAT);
             gl.enableVertexAttribArray(POSITION_LOCATION);
             gl.vertexAttribPointer(
                 POSITION_LOCATION,
@@ -209,11 +209,11 @@ export default class BasicMesh {
         return this._material;
     }
 
-    set material(mat) {
+    set material(new_material) {
         const material = this._material;
         this._material = {
             ...material,
-            ...mat
+            ...new_material
         };
     }
 

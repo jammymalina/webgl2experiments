@@ -14,7 +14,7 @@ out vec4 tex1;
 
 void main() {
     vec2 ps = vec2(1.0 / texture_size.x, 1.0 / texture_size.y);
-    
+
     tex0 = tex_coord;
     tex1.xy = vec2(ps.x, 0); // F
     tex1.zw = vec2(0, ps.y); // H
