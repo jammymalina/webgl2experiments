@@ -77,6 +77,10 @@ export default function tex2d() {
         return this;
     };
 
+    toGLTexture() {
+
+    }
+
     this.getData = function() {
         return data;
     };
@@ -92,4 +96,54 @@ export default function tex2d() {
     this.numComponents = function() {
         return components;
     };
+}
+
+export class GLSampler {
+    constructor(gl) {
+        this._gl = gl;
+        this._sampler = gl.createSampler();
+
+        gl.samplerParameteri(this.sampler, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+        gl.samplerParameteri(this.sampler, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.samplerParameteri(this.sampler, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.samplerParameteri(this.sampler, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.samplerParameteri(this.sampler, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE);
+        gl.samplerParameterf(this.sampler, gl.TEXTURE_MIN_LOD, -1000.0);
+        gl.samplerParameterf(this.sampler, gl.TEXTURE_MAX_LOD,  1000.0);
+        gl.samplerParameteri(this.sampler, gl.TEXTURE_COMPARE_MODE, gl.NONE);
+        gl.samplerParameteri(this.sampler, gl.TEXTURE_COMPARE_FUNC, gl.LEQUAL);
+    }
+
+    dispose() {
+        if (this._sampler === null) {
+            return;
+        }
+        gl.deleteSampler(this.sampler);
+        this._sampler = null;
+    }
+
+    get gl() {
+        return this._gl;
+    }
+
+    get sampler() {
+        return this._sampler;
+    }
+}
+
+export class GLTexture2d {
+    constructor(gl) {
+        this._gl = gl;
+    }
+
+    bindTexture(loc) {
+        const gl = this.gl;
+        loc = loc || gl.TEXTURE0;
+        gl.activeTexture(gl.TEXTURE0);
+
+    }
+
+    get gl() {
+        return this._gl;
+    }
 }

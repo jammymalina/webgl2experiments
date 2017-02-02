@@ -9,8 +9,8 @@ layout (location = 1) in tex_coord;
 uniform vec2 texture_size;
 uniform mat4 transformation_matrix;
 
-out vec4 tex0;
-out vec4 tex1;
+smooth out vec4 tex0;
+smooth out vec4 tex1;
 
 void main() {
     vec2 ps = vec2(1.0 / texture_size.x, 1.0 / texture_size.y);

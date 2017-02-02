@@ -3,8 +3,8 @@
 precision highp float;
 precision highp int;
 
-in vec4 tex0;
-in vec4 tex1;
+smooth in vec4 tex0;
+smooth in vec4 tex1;
 
 const float coef = 2.0;
 const vec3 yuv_weighted = vec3(14.352, 28.176, 5.472);
@@ -21,7 +21,7 @@ vec4 weighted_distance(vec4 a, vec4 b, vec4 c, vec4 d, vec4 e, vec4 f, vec4 g, v
     return (df(a, b) + df(a, c) + df(d, e) + df(d, f) + 4.0 * df(g, h));
 }
 
-out vec4 frag_color;
+layout (location = 0) out vec4 frag_color;
 
 void main() {
     bvec4 edr, edr_left, edr_up, px; // px = pixel, edr = edge detection rule

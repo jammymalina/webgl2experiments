@@ -9,8 +9,14 @@ let gl;
 window.addEventListener('load', function() {
     gl = new GLInstance('glcanvas').frameSetSize(500, 500).frameClear();
 
-    const shader = new Shader(gl);
-
+    const lambert = new Shader(gl);
+    lambert.compileShaders([{
+        type: gl.VERTEX_SHADER,
+        src: document.getElementById('lambert-vs').textContent
+    }, {
+        type: gl.FRAGMENT_SHADER,
+        src: document.getElementById('lambert-fs').textContent
+    }], ['model_view_matrix', 'normal_matrix', 'diffuse_texture', 'light_direction_view']);
     const plane = planeBufferGeometry(gl);
     const mesh = new BasicMesh(gl);
     mesh.create({
@@ -31,7 +37,7 @@ window.addEventListener('load', function() {
         },
         mode: gl.TRIANGLES
     });
-    mesh.dispose();
+    
 
     window.addEventListener('resize', function() {
         gl.frameSetSize(window.innerWidth, window.innerHeight);
