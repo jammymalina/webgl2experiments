@@ -45,14 +45,14 @@ export default class Shader {
         }
         const gl = this.gl;
         const program = this.program;
-        let shaders = [];
+        let compiledShaders = [];
 
         gl.useProgram(program);
         for (let i = 0; i < shaders.length; i++) {
             const shader = this._compileShader(shaders[i].type, shaders[i].src);
             if (shader !== null) {
                 gl.attachShader(program, shader);
-                shaders.push(shader);
+                compiledShaders.push(shader);
             }
         }
 
@@ -63,7 +63,7 @@ export default class Shader {
             return false;
 		}
 
-        shaders.forEach(shader => gl.deleteShader(shader));
+        compiledShaders.forEach(shader => gl.deleteShader(shader));
         uniforms.forEach(uniform => {
             if (!this.hasUniform(uniform)) {
                 this._uniforms[uniform] = gl.getUniformLocation(program, uniform);

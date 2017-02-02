@@ -1,9 +1,9 @@
-export default function planeBufferGeometry( width, height, widthSegments, heightSegments ) {
+export default function planeBufferGeometry(width, height, widthSegments, heightSegments) {
 	const widthHalf  = width  / 2;
 	const heightHalf = height / 2;
 
-	const gridX = Math.floor( widthSegments ) || 1;
-	const gridY = Math.floor( heightSegments ) || 1;
+	const gridX = Math.floor(widthSegments) || 1;
+	const gridY = Math.floor(heightSegments) || 1;
 
 	const gridX1 = gridX + 1;
 	const gridY1 = gridY + 1;

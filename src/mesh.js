@@ -2,7 +2,8 @@ export const POSITION_LOCATION = 0;
 export const NORMAL_LOCATION = 1;
 export const UV_LOCATION = 2;
 
-export default class BasicMesh {
+export default class BasicMesh
+{
     constructor(gl, material) {
         this._vao = null;
         this._buffer = null;
