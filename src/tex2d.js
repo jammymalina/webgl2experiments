@@ -8,10 +8,10 @@ export default function tex2d() {
         return components * (y * width + x);
     };
 
-    this.create = function(w, h, n) {
-        width = typeof w === 'undefined' ? 1 : w;
-        height = typeof h === 'undefined' ? 1 : h;
-        components = typeof n === 'undefined' ? 4 : n;
+    this.create = function(w, h, n, format) {
+        width      = w || 1;
+        height     = h || 1;
+        components = n || 4;
         data = new Uint8Array(width * height * components);
         return this;
     };
@@ -77,10 +77,6 @@ export default function tex2d() {
         return this;
     };
 
-    toGLTexture() {
-
-    }
-
     this.getData = function() {
         return data;
     };
@@ -114,6 +110,11 @@ export class GLSampler {
         gl.samplerParameteri(this.sampler, gl.TEXTURE_COMPARE_FUNC, gl.LEQUAL);
     }
 
+    bind(loc) {
+        loc = loc || 0;
+        this.gl.bindSampler(loc, this.sampler);
+    }
+
     dispose() {
         if (this._sampler === null) {
             return;
@@ -132,18 +133,53 @@ export class GLSampler {
 }
 
 export class GLTexture2d {
-    constructor(gl) {
+    constructor(gl, sampler, image) {
         this._gl = gl;
+        this.sampler = sampler;
+        this._tex = gl.createTexture();
     }
 
-    bindTexture(loc) {
+    loadImage(image, generateMipmap) {
         const gl = this.gl;
-        loc = loc || gl.TEXTURE0;
-        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, this.texture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+        if (generateMipmap) {
+            gl.generateMipmap(gl.TEXTURE_2D);
+        }
+        gl.bindTexture(gl.TEXTURE_2D, null);
+    }
 
+    loadData(image, generateMipmap) {
+        const gl = this.gl;
+        gl.bindTexture(gl.TEXTURE_2D, this.texture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, image.format, image.width, image.height, 0, image.format, gl.UNSIGNED_BYTE, image.data);
+        if (generateMipmap) {
+            gl.generateMipmap(gl.TEXTURE_2D);
+        }
+        gl.bindTexture(gl.TEXTURE_2D, null);
+    }
+
+    bind(loc) {
+        const gl = this.gl;
+        loc = loc || 0;
+        gl.activeTexture(gl.TEXTURE0 + loc);
+        gl.bindTexture(gl.TEXTURE_2D, this.texture);
+        this.sampler.bind(loc);
+    }
+
+    dispose() {
+        if (this.texture === null) {
+            return;
+        }
+        this.gl.deleteTexture(this.texture);
+        this._tex = null;
     }
 
     get gl() {
         return this._gl;
+    }
+
+    get texture() {
+        return this._tex;
     }
 }

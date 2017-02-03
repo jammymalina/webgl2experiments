@@ -1,4 +1,5 @@
 let oldCoords;
+let wheelTimeout = null;
 
 let mouse = {
     x: 0,
@@ -46,7 +47,10 @@ window.addEventListener('mouseup', function(e) {
 
 window.addEventListener('wheel', function(e) {
     mouse.wheelDelta = e.wheelDelta;
-    setTimeout(function() {
+    if (wheelTimeout !== null) {
+        clearTimeout(wheelTimeout);
+    }
+    wheelTimeout = setTimeout(function() {
         mouse.wheelDelta = 0;
     }, 200);
 });
@@ -68,6 +72,9 @@ export class MouseInput {
         return mouse.wheelDelta;
     }
     static resetWheelDelta() {
+        if (wheelTimeout !== null) {
+            clearTimeout(wheelTimeout);
+        }
         mouse.wheelDelta = 0;
     }
 }
