@@ -18,7 +18,7 @@ window.addEventListener('load', function() {
         type: gl.FRAGMENT_SHADER,
         src: document.getElementById('lambert-fs').textContent
     }], ['model_view_matrix', 'normal_matrix', 'diffuse_texture', 'light_direction_view']);
-    const plane = planeBufferGeometry(gl);
+    const plane = planeBufferGeometry(10, 10, 2, 2);
     const mesh = new BasicMesh(gl);
     mesh.create({
         vertices: {

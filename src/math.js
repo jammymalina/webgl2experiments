@@ -14,7 +14,7 @@ export function lerpf(start, end, t) {
 
 export const Euler = {
     fromRotationMatrix: function(m, order) {
-		// assumes the upper 3x3 of m is a pure rotation matrix (i.e, unscaled)
+        // assumes the upper 3x3 of m is a pure rotation matrix (i.e, unscaled)
         let x = 0, y = 0, z = 0;
 
 		const te = m.elements;
