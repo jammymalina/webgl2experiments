@@ -156,7 +156,7 @@ export default class BasicMesh
             gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
             this._numIndices = indices.length;
         } else {
-            this._numIndices = size;
+            this._numIndices = maxBufferSize;
         }
 
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);

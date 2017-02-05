@@ -2,11 +2,40 @@ import { quat, vec3, mat4 } from 'gl-matrix';
 import { Euler } from './math';
 
 export default class Transform {
-    constructor({ position, rotation, scale }) {
+    constructor({ position, rotation, scale, up, right, forward }) {
         this.position = position || vec3.create();
+
+        this._up      = vec3.create();
+        this._right   = vec3.create();
+        this._forward = vec3.create();
+        this.setDirectionalVectors(up, right, forward);
+
         this.rotation = typeof rotation === 'undefined' ?
             quat.create() : Euler.toQuat(rotation);
+
         this.scale = scale || vec3.fromValues(1, 1, 1);
+    }
+
+    setDirectionalVectors(up, right, forward) {
+        this._up      = up      || vec3.fromValues(0, 1, 0);
+        this._right   = right   || vec3.fromValues(1, 0, 0);
+        this._forward = forward || vec3.fromValues(0, 0, 1);
+        if (typeof up === 'undefined' && typeof right === 'undefined' && typeof forward === 'undefined') {
+            return;
+        }
+        if (typeof forward === 'undefined') {
+            vec3.cross(this._forward, this._right, this._up);
+            vec3.normalize(this._forward, this._forward);
+            return;
+        }
+        if (typeof right === 'undefined') {
+            vec3.cross(this._right, this._up, this._forward);
+            vec3.normalize()
+        }
+        if (typeof up === 'undefined') {
+            vec3.cross(this._up, this._forward, this._right);
+            vec3.normalize(this._up, this._up);
+        }
     }
 
     get posX() {
@@ -93,6 +122,24 @@ export default class Transform {
     set eulerZ(v) {
         const euler = Euler.fromQuat(this.rotation);
         this.eulerAngles = vec3.fromValues(euler[0], euler[1], v);
+    }
+
+    get forward() {
+        let result = vec3.create();
+        vec3.transformQuat(result, this._forward, this.rotation);
+        return result;
+    }
+
+    get right() {
+        let result = vec3.create();
+        vec3.transformQuat(result, this._right, this.rotation);
+        return result;
+    }
+
+    get up() {
+        let result = vec3.create();
+        vec3.transformQuat(result, this._up, this.rotation);
+        return result;
     }
 
     get mat() {

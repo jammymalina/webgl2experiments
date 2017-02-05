@@ -3,6 +3,7 @@ import BasicMesh from './mesh';
 import MouseOrbitCamera from './camera/mouseorbit';
 import planeBufferGeometry from './geometry/plane';
 import Shader from './shader';
+import Transform from './transform';
 
 let gl;
 
@@ -37,7 +38,7 @@ window.addEventListener('load', function() {
         },
         mode: gl.TRIANGLES
     });
-    
+    const camera = new MouseOrbitCamera(new Transform(), new Transform());
 
     window.addEventListener('resize', function() {
         gl.frameSetSize(window.innerWidth, window.innerHeight);
