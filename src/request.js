@@ -46,10 +46,16 @@ export function makeShaderRequest(shaders, progressCallback) {
             let type;
             if (shaders[i].endsWith(".vert") || shaders[i].endsWith(".vs")) {
                 type = "vertex";
-            } else {
+            } else if (shaders[i].endsWith(".frag") || shaders[i].endsWith(".fs")) {
                 type = "fragment";
+            } else {
+                type = "vertex";
             }
-            makeRequest('GET', shaders[0]).then({
+            makeRequest('GET', shaders[0]).then(function(src) {
+                resolve({
+                    type,
+                    src
+                });
             }).catch(function(e) {
                 reject(e);
             })
@@ -57,5 +63,10 @@ export function makeShaderRequest(shaders, progressCallback) {
         promises.push(p);
     }
 
-    return Promise.all(promises);
+    return new Promise(function(resolve, reject) {
+        Promise.all(promises).then(function(results) {
+        }).catch(function(e) {
+            reject(e);
+        })
+    });
 }
