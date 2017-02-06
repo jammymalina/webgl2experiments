@@ -1,0 +1,22 @@
+{
+    "camera": {
+        "type": "mouse_orbit",
+        "transform": {}
+    },
+    "shaders": [{
+        "name": "lambert",
+        "src": ["./src/shaders/lambert/lambert.vert", "./src/shaders/lambert/lambert.frag"],
+        "uniforms": ["diffuse_texture", "model_view_matrix", "normal_matrix", "perspective_matrix", "light_direction_view"]
+    }],
+    "materials": [{
+        "name": "duck",
+        "type": "texture",
+        "src": "./resources/models/duckCM.jpg"
+    }],
+    "meshes": [{
+        "name": "duck",
+        "type": "model",
+        "src": "./resources/models/duck.json",
+        "material": "duck"
+    }]
+}

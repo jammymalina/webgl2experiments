@@ -19,16 +19,15 @@ export default class BasicMesh
         let result = [];
         let indices = new Array(arrs.length);
         indices.fill(0);
-        let finished = false;
-        while (!finished) {
-            finished = true;
-            for (let i = 0, j = 0; i < arrs.length && j < limit; i++, j++) {
+        let j = 0;
+        while (j < limit) {
+            for (let i = 0; i < arrs.length && j < limit; i++) {
                 for (let k = 0; k < arrBatchSizes[i]; k++) {
                     result.push(arrs[i][indices[i]]);
                     indices[i]++;
-                    finished = false;
                 }
             }
+            j++;
         }
         return result;
     }
@@ -97,7 +96,7 @@ export default class BasicMesh
             vertexSizes.push(vsize);
         }
         const maxBufferSize = Math.min(...bufferSizes);
-        f = new Float32Array(flatten(f, vertexSizes, maxBufferSize));
+        f = new Float32Array(BasicMesh.flatten(f, vertexSizes, maxBufferSize));
 
         gl.bindVertexArray(this.vao);
 

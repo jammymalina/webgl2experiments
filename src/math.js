@@ -17,10 +17,9 @@ export const Euler = {
         // assumes the upper 3x3 of m is a pure rotation matrix (i.e, unscaled)
         let x = 0, y = 0, z = 0;
 
-		const te = m.elements;
-		const m11 = te[0], m12 = te[4], m13 = te[8];
-		const m21 = te[1], m22 = te[5], m23 = te[9];
-		const m31 = te[2], m32 = te[6], m33 = te[10];
+		const m11 = m[0], m12 = m[4], m13 = m[8];
+		const m21 = m[1], m22 = m[5], m23 = m[9];
+		const m31 = m[2], m32 = m[6], m33 = m[10];
 
 		order = order || 'XYZ';
 
