@@ -8,15 +8,26 @@
         "src": ["./src/shaders/lambert/lambert.vert", "./src/shaders/lambert/lambert.frag"],
         "uniforms": ["diffuse_texture", "model_view_matrix", "normal_matrix", "perspective_matrix", "light_direction_view"]
     }],
-    "materials": [{
+    "textures": [{
         "name": "duck",
-        "type": "texture",
         "src": "./resources/models/duckCM.jpg"
+    }],
+    "materials": [{
+        "name": "lambertDuck", 
+        "shader": "lambert",
+        "type": "texture", 
+        "data": "duck" 
     }],
     "meshes": [{
         "name": "duck",
         "type": "model",
-        "src": "./resources/models/duck.json",
-        "material": "duck"
+        "mode": "triangles",
+        "data": "./resources/models/duck.json"
+    }], 
+    "instances": [{
+        "mesh": "duck",
+        "count": 1,
+        "material": "lambertDuck",  
+        "transforms": []
     }]
 }

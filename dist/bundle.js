@@ -8202,23 +8202,23 @@
 
 	var _mesh2 = _interopRequireDefault(_mesh);
 
-	var _mouseorbit = __webpack_require__(311);
+	var _mouseorbit = __webpack_require__(312);
 
 	var _mouseorbit2 = _interopRequireDefault(_mouseorbit);
 
-	var _plane = __webpack_require__(315);
+	var _plane = __webpack_require__(316);
 
 	var _plane2 = _interopRequireDefault(_plane);
 
-	var _shader = __webpack_require__(316);
+	var _shader = __webpack_require__(317);
 
 	var _shader2 = _interopRequireDefault(_shader);
 
-	var _transform = __webpack_require__(314);
+	var _transform = __webpack_require__(315);
 
 	var _transform2 = _interopRequireDefault(_transform);
 
-	var _scene = __webpack_require__(317);
+	var _scene = __webpack_require__(318);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -8228,7 +8228,8 @@
 	    gl = new _gl2.default('glcanvas').frameSetSize(500, 500).frameClear();
 
 	    (0, _scene.loadScene)('./src/scenes/basic.json').then(function (scene) {
-	        console.log('Loading scene finished', scene);
+	        console.log('Loading scene finished');
+	        console.log(scene);
 	    });
 
 	    window.addEventListener('resize', function () {
@@ -14827,23 +14828,125 @@
 
 /***/ },
 /* 310 */
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-
-	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+	exports.makeMeshRequest = exports.UV_LOCATION = exports.NORMAL_LOCATION = exports.POSITION_LOCATION = undefined;
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var makeMeshRequest = exports.makeMeshRequest = function () {
+	    var _ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee(type, data, metadata) {
+	        var result, indices, attributes, vertices, normals, uvs;
+	        return regeneratorRuntime.wrap(function _callee$(_context) {
+	            while (1) {
+	                switch (_context.prev = _context.next) {
+	                    case 0:
+	                        type = type.toLowerCase();
+
+	                        if (!(type === 'model')) {
+	                            _context.next = 20;
+	                            break;
+	                        }
+
+	                        _context.prev = 2;
+	                        _context.next = 5;
+	                        return (0, _request.makeRequest)('GET', data, metadata);
+
+	                    case 5:
+	                        result = _context.sent;
+	                        indices = result && result.data && result.data.index && result.data.index.array;
+	                        attributes = result && result.data && result.data.attributes;
+	                        vertices = attributes && attributes.position && attributes.position.array;
+	                        normals = attributes && attributes.normal && attributes.normal.array;
+	                        uvs = attributes && attributes.uv && attributes.uv.array;
+	                        return _context.abrupt('return', _extends({}, metadata, {
+	                            data: {
+	                                indices: indices,
+	                                vertices: vertices,
+	                                normals: normals,
+	                                uvs: uvs
+	                            }
+	                        }));
+
+	                    case 14:
+	                        _context.prev = 14;
+	                        _context.t0 = _context['catch'](2);
+
+	                        console.error("Error with mesh request: ", err);
+	                        return _context.abrupt('return', null);
+
+	                    case 18:
+	                        _context.next = 26;
+	                        break;
+
+	                    case 20:
+	                        if (!(type === 'raw' || type === 'raw_data' || type === 'rawdata')) {
+	                            _context.next = 24;
+	                            break;
+	                        }
+
+	                        return _context.abrupt('return', null);
+
+	                    case 24:
+	                        if (!(type === 'geometry' || type === 'geom')) {
+	                            _context.next = 26;
+	                            break;
+	                        }
+
+	                        return _context.abrupt('return', null);
+
+	                    case 26:
+	                    case 'end':
+	                        return _context.stop();
+	                }
+	            }
+	        }, _callee, this, [[2, 14]]);
+	    }));
+
+	    return function makeMeshRequest(_x, _x2, _x3) {
+	        return _ref.apply(this, arguments);
+	    };
+	}();
+
+	exports.mapNameMode = mapNameMode;
+
+	var _request = __webpack_require__(311);
+
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
 
 	var POSITION_LOCATION = exports.POSITION_LOCATION = 0;
 	var NORMAL_LOCATION = exports.NORMAL_LOCATION = 1;
 	var UV_LOCATION = exports.UV_LOCATION = 2;
+
+	function mapNameMode(name, gl) {
+	    name = name.toLowerCase();
+	    switch (name) {
+	        case 'points':
+	            return gl.POINTS;
+	        case 'lines':
+	            return gl.LINES;
+	        case 'line_strip':
+	            return gl.LINE_STRIP;
+	        case 'line_loop':
+	            return gl.LINE_LOOP;
+	        case 'triangles':
+	            return gl.TRIANGLES;
+	        case 'triangle_strip':
+	            return gl.TRIANGLE_STRIP;
+	        case 'triangle_fan':
+	            return gl.TRIANGLE_FAN;
+	    }
+	    return gl.TRIANGLES;
+	}
 
 	var BasicMesh = function () {
 	    function BasicMesh(gl, material) {
@@ -14854,7 +14957,7 @@
 	        this._indicesBuffer = null;
 	        this._gl = gl;
 	        this._indexed = false;
-	        this._material = material;
+	        this._material = material || null;
 	        this._numIndices = 0;
 	        this._mode = gl.TRIANGLES;
 	    }
@@ -14862,7 +14965,7 @@
 	    _createClass(BasicMesh, [{
 	        key: 'draw',
 	        value: function draw(shader) {
-	            if (this.vao === null) {
+	            if (this.vao === null || shader === null && this.material === null) {
 	                return;
 	            }
 	            if (typeof shader === 'undefined') {
@@ -14890,12 +14993,12 @@
 	        }
 	    }, {
 	        key: 'create',
-	        value: function create(_ref) {
-	            var vertices = _ref.vertices,
-	                indices = _ref.indices,
-	                normals = _ref.normals,
-	                uvs = _ref.uvs,
-	                mode = _ref.mode;
+	        value: function create(_ref2) {
+	            var vertices = _ref2.vertices,
+	                indices = _ref2.indices,
+	                normals = _ref2.normals,
+	                uvs = _ref2.uvs,
+	                mode = _ref2.mode;
 
 	            if (this.vao !== null) {
 	                return;
@@ -14906,7 +15009,7 @@
 	            this._buffer = gl.createBuffer();
 
 	            if (typeof mode !== 'undefined') {
-	                this._mode = mode;
+	                this._mode = mapNameMode(mode, gl);
 	            }
 
 	            var bufferSizes = [];
@@ -15066,6 +15169,63 @@
 
 /***/ },
 /* 311 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	exports.default = makeRequest;
+	exports.makeImageRequest = makeImageRequest;
+	function makeRequest(method, url, metadata, progressCallback) {
+	    return new Promise(function (resolve, reject) {
+	        var xhr = new XMLHttpRequest();
+	        xhr.open(method, url);
+	        xhr.onload = function () {
+	            if (this.status >= 200 && this.status < 300) {
+	                if (typeof progressCallback !== 'undefined') {
+	                    progressCallback();
+	                }
+	                metadata = metadata || {};
+	                resolve(_extends({}, metadata, {
+	                    data: xhr.response
+	                }));
+	            } else {
+	                reject({ status: this.status, statusText: xhr.statusText });
+	            }
+	        };
+	        xhr.onerror = function () {
+	            reject({ status: this.status, statusText: xhr.statusText });
+	        };
+	        xhr.send();
+	    });
+	}
+
+	function makeImageRequest(src, metadata, progressCallback) {
+	    return new Promise(function (resolve, reject) {
+	        var image = new Image();
+	        image.src = src;
+	        image.onload = function () {
+	            if (typeof progressCallback !== 'undefined') {
+	                progressCallback();
+	            }
+	            metadata = metadata || {};
+	            resolve(_extends({}, metadata, {
+	                data: image
+	            }));
+	        };
+	        image.onerror = function (e) {
+	            reject(e);
+	        };
+	    });
+	}
+
+/***/ },
+/* 312 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -15080,11 +15240,11 @@
 
 	var _glMatrix = __webpack_require__(300);
 
-	var _input = __webpack_require__(312);
+	var _input = __webpack_require__(313);
 
-	var _math = __webpack_require__(313);
+	var _math = __webpack_require__(314);
 
-	var _transform = __webpack_require__(314);
+	var _transform = __webpack_require__(315);
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -15156,7 +15316,7 @@
 	exports.default = MouseOrbitCamera;
 
 /***/ },
-/* 312 */
+/* 313 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -15270,7 +15430,7 @@
 	}();
 
 /***/ },
-/* 313 */
+/* 314 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -15437,7 +15597,7 @@
 	};
 
 /***/ },
-/* 314 */
+/* 315 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -15450,7 +15610,7 @@
 
 	var _glMatrix = __webpack_require__(300);
 
-	var _math = __webpack_require__(313);
+	var _math = __webpack_require__(314);
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -15622,7 +15782,7 @@
 	exports.default = Transform;
 
 /***/ },
-/* 315 */
+/* 316 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -15631,7 +15791,12 @@
 		value: true
 	});
 	exports.default = planeBufferGeometry;
-	function planeBufferGeometry(width, height, widthSegments, heightSegments) {
+	function planeBufferGeometry(_ref) {
+		var width = _ref.width,
+		    height = _ref.height,
+		    widthSegments = _ref.widthSegments,
+		    heightSegments = _ref.heightSegments;
+
 		var widthHalf = width / 2;
 		var heightHalf = height / 2;
 
@@ -15690,7 +15855,7 @@
 	}
 
 /***/ },
-/* 316 */
+/* 317 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -15701,7 +15866,115 @@
 
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
+	var makeShaderRequest = exports.makeShaderRequest = function () {
+	    var _ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee(shaders, metadata, progressCallback) {
+	        var shaderTypes, promises, _loop, i, data;
+
+	        return regeneratorRuntime.wrap(function _callee$(_context) {
+	            while (1) {
+	                switch (_context.prev = _context.next) {
+	                    case 0:
+	                        shaderTypes = new Set();
+
+
+	                        shaders = shaders.filter(function (item) {
+	                            var type = mapExtensionType(item);
+	                            if (!shaderTypes.has()) {
+	                                shaderTypes.add(type);
+	                                return true;
+	                            }
+	                            return false;
+	                        }).map(function (item) {
+	                            var type = mapExtensionType(item);
+	                            return {
+	                                type: type,
+	                                src: item
+	                            };
+	                        });
+
+	                        if (!(shaders.length < 2)) {
+	                            _context.next = 4;
+	                            break;
+	                        }
+
+	                        return _context.abrupt('return', null);
+
+	                    case 4:
+	                        promises = [];
+
+	                        _loop = function _loop(i) {
+	                            var p = new Promise(function (resolve, reject) {
+	                                makeRequest('GET', shaders[i].src).then(function (src) {
+	                                    if (typeof progressCallback !== 'undefined') {
+	                                        progressCallback(1 / shaders.length);
+	                                    }
+	                                    resolve({
+	                                        type: shaders[i].type,
+	                                        src: src.data
+	                                    });
+	                                }).catch(function (e) {
+	                                    reject(e);
+	                                });
+	                            });
+	                            promises.push(p);
+	                        };
+
+	                        for (i = 0; i < shaders.length; i++) {
+	                            _loop(i);
+	                        }
+
+	                        _context.next = 9;
+	                        return Promise.all(promises);
+
+	                    case 9:
+	                        data = _context.sent;
+	                        return _context.abrupt('return', _extends({}, metadata, {
+	                            data: data
+	                        }));
+
+	                    case 11:
+	                    case 'end':
+	                        return _context.stop();
+	                }
+	            }
+	        }, _callee, this);
+	    }));
+
+	    return function makeShaderRequest(_x, _x2, _x3) {
+	        return _ref.apply(this, arguments);
+	    };
+	}();
+
+	exports.mapExtensionType = mapExtensionType;
+	exports.mapTypeName = mapTypeName;
+
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
+
+	function mapExtensionType(url) {
+	    var type = 'vertex';
+	    if (url.endsWith('.vert') || url.endsWith('.vs')) {
+	        type = 'vertex';
+	    } else if (url.endsWith('.frag') || url.endsWith('.fs')) {
+	        type = 'fragment';
+	    } else {
+	        type = 'vertex';
+	    }
+	    return type;
+	}
+
+	function mapTypeName(type, gl) {
+	    switch (type) {
+	        case gl.VERTEX_SHADER:
+	            return 'vertex';
+	        case gl.FRAGMENT_SHADER:
+	            return 'fragment';
+	    }
+	    return 'unknown';
+	}
 
 	var Shader = function () {
 	    function Shader(gl) {
@@ -15710,7 +15983,7 @@
 	        this._gl = gl;
 	        this._program = null;
 	        this._linked = false;
-	        this._uniforms = {};
+	        this._uniforms = new Map();
 	    }
 
 	    _createClass(Shader, [{
@@ -15719,25 +15992,13 @@
 	            this._program = this.gl.createProgram();
 	        }
 	    }, {
-	        key: 'getTypeName',
-	        value: function getTypeName(type) {
-	            var gl = this.gl;
-	            switch (type) {
-	                case gl.VERTEX_SHADER:
-	                    return 'vertex';
-	                case gl.FRAGMENT_SHADER:
-	                    return 'fragment';
-	            }
-	            return "unknown";
-	        }
-	    }, {
 	        key: '_compileShader',
 	        value: function _compileShader(type, shader_source) {
 	            var gl = this.gl;
 	            var shader = gl.createShader(type);
 	            gl.shaderSource(shader, shader_source);
 	            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-	                console.error("Error compiling shader: ");
+	                console.error('Error compiling shader: ');
 	                console.log(shader_source);
 	                console.error(gl.getShaderInfoLog(shader));
 	                gl.deleteShader(shader);
@@ -15763,7 +16024,19 @@
 
 	            gl.useProgram(program);
 	            for (var i = 0; i < shaders.length; i++) {
-	                var shader = this._compileShader(shaders[i].type, shaders[i].src);
+	                var type = void 0;
+	                switch (shaders[i].type) {
+	                    case 'vertex':
+	                        type = gl.VERTEX_SHADER;
+	                        break;
+	                    case 'fragment':
+	                        type = gl.FRAGMENT_SHADER;
+	                        break;
+	                    default:
+	                        type = gl.VERTEX_SHADER;
+	                        break;
+	                }
+	                var shader = this._compileShader(type, shaders[i].src);
 	                if (shader !== null) {
 	                    gl.attachShader(program, shader);
 	                    compiledShaders.push(shader);
@@ -15772,7 +16045,7 @@
 
 	            gl.linkProgram(program);
 	            if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
-	                console.error("Error creating shader program.", gl.getProgramInfoLog(program));
+	                console.error('Error creating shader program.', gl.getProgramInfoLog(program));
 	                gl.deleteProgram(program);
 	                return false;
 	            }
@@ -15782,7 +16055,7 @@
 	            });
 	            uniforms.forEach(function (uniform) {
 	                if (!_this.hasUniform(uniform)) {
-	                    _this._uniforms[uniform] = gl.getUniformLocation(program, uniform);
+	                    _this._uniforms.set(uniform, gl.getUniformLocation(program, uniform));
 	                }
 	            });
 	            this._linked = true;
@@ -15817,13 +16090,13 @@
 	    }, {
 	        key: 'hasUniform',
 	        value: function hasUniform(name) {
-	            return name in this._uniforms;
+	            return this._uniforms.has(name);
 	        }
 	    }, {
 	        key: 'getUniformLocation',
 	        value: function getUniformLocation(name) {
 	            if (this.hasUniform(name)) {
-	                return this._uniforms[name];
+	                return this._uniforms.get(name);
 	            }
 	            return -1;
 	        }
@@ -15842,57 +16115,57 @@
 	    }, {
 	        key: 'setUniform_float',
 	        value: function setUniform_float(name, val) {
-	            this.setUniform(name, val, "uniform1f");
+	            this.setUniform(name, val, 'uniform1f');
 	        }
 	    }, {
 	        key: 'setUniform_int',
 	        value: function setUniform_int(name, val) {
-	            this.setUniform(name, val, "uniform1i");
+	            this.setUniform(name, val, 'uniform1i');
 	        }
 	    }, {
 	        key: 'setUniform_vec2',
 	        value: function setUniform_vec2(name, val) {
-	            this.setUniform(name, val, "uniform2fv");
+	            this.setUniform(name, val, 'uniform2fv');
 	        }
 	    }, {
 	        key: 'setUniform_vec3',
 	        value: function setUniform_vec3(name, val) {
-	            this.setUniform(name, val, "uniform3fv");
+	            this.setUniform(name, val, 'uniform3fv');
 	        }
 	    }, {
 	        key: 'setUniform_vec4',
 	        value: function setUniform_vec4(name, val) {
-	            this.setUniform(name, val, "uniform4fv");
+	            this.setUniform(name, val, 'uniform4fv');
 	        }
 	    }, {
 	        key: 'setUniform_ivec2',
 	        value: function setUniform_ivec2(name, val) {
-	            this.setUniform(name, val, "uniform2iv");
+	            this.setUniform(name, val, 'uniform2iv');
 	        }
 	    }, {
 	        key: 'setUniform_ivec3',
 	        value: function setUniform_ivec3(name, val) {
-	            this.setUniform(name, val, "uniform3iv");
+	            this.setUniform(name, val, 'uniform3iv');
 	        }
 	    }, {
 	        key: 'setUniform_ivec4',
 	        value: function setUniform_ivec4(name, val) {
-	            this.setUniform(name, val, "uniform4iv");
+	            this.setUniform(name, val, 'uniform4iv');
 	        }
 	    }, {
 	        key: 'setUniform_mat2',
 	        value: function setUniform_mat2(name, val) {
-	            this.setMatrixUniform(name, val, false, "uniformMatrix2fv");
+	            this.setMatrixUniform(name, val, false, 'uniformMatrix2fv');
 	        }
 	    }, {
 	        key: 'setUniform_mat3',
 	        value: function setUniform_mat3(name, val) {
-	            this.setMatrixUniform(name, val, false, "uniformMatrix3fv");
+	            this.setMatrixUniform(name, val, false, 'uniformMatrix3fv');
 	        }
 	    }, {
 	        key: 'setUniform_mat4',
 	        value: function setUniform_mat4(name, val) {
-	            this.setMatrixUniform(name, val, false, "uniformMatrix4fv");
+	            this.setMatrixUniform(name, val, false, 'uniformMatrix4fv');
 	        }
 	    }, {
 	        key: 'isLinked',
@@ -15917,7 +16190,7 @@
 	exports.default = Shader;
 
 /***/ },
-/* 317 */
+/* 318 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -15927,19 +16200,22 @@
 	});
 	exports.loadScene = undefined;
 
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 	var loadScene = exports.loadScene = function () {
-	    var _ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee(sceneURL) {
-	        var scene, config, promises, i, material;
+	    var _ref = _asyncToGenerator(regeneratorRuntime.mark(function _callee(sceneURL, progress) {
+	        var scene, config, promises, i, texture, _i, material, _i2, mesh, results;
+
 	        return regeneratorRuntime.wrap(function _callee$(_context) {
 	            while (1) {
 	                switch (_context.prev = _context.next) {
 	                    case 0:
 	                        scene = new Scene();
 	                        _context.next = 3;
-	                        return (0, _request2.default)('GET', sceneURL).then(function (res) {
-	                            return res;
+	                        return (0, _request2.default)('GET', sceneURL, {}).then(function (res) {
+	                            return JSON.parse(res.data);
 	                        }).catch(function (err) {
 	                            console.error('Augh, there was an error while loading scene!', err.statusText);
 	                            return null;
@@ -15947,25 +16223,134 @@
 
 	                    case 3:
 	                        config = _context.sent;
-
-	                        console.log(config);
 	                        promises = [];
 
-	                        // Materials
+	                        // textures
 
-	                        if (typeof config.materials !== 'undefined') {
+	                        if (typeof config.textures !== 'undefined') {
 	                            for (i = 0; i < config.materials.length; i++) {
-	                                material = config.materials[i];
+	                                texture = config.textures[i];
 
-	                                if (material.type === 'texture' && typeof material.src !== 'undefined') {
-	                                    promises.push((0, _request.makeImageRequest)(material.src));
+	                                if ((0, _utils.hasProps)(texture, 'src', 'name')) {
+	                                    promises.push((0, _request.makeImageRequest)(texture.src, { type: 'texture', name: texture.name }));
+	                                } else {
+	                                    console.error('Error reading scene config: required texture props are name, src');
 	                                }
 	                            }
 	                        }
 
-	                        return _context.abrupt('return', scene);
+	                        // materials
+
+	                        if (!(typeof config.materials !== 'undefined')) {
+	                            _context.next = 25;
+	                            break;
+	                        }
+
+	                        _i = 0;
 
 	                    case 8:
+	                        if (!(_i < config.materials.length)) {
+	                            _context.next = 25;
+	                            break;
+	                        }
+
+	                        material = config.materials[_i];
+
+	                        if (!(0, _utils.hasProps)(material, 'name', 'type', 'data')) {
+	                            _context.next = 21;
+	                            break;
+	                        }
+
+	                        if (!(material.name === 'default')) {
+	                            _context.next = 15;
+	                            break;
+	                        }
+
+	                        console.error('Error reading scene config: default material name is reserved keyword');
+	                        _context.next = 19;
+	                        break;
+
+	                    case 15:
+	                        if (!(material.shader === 'default')) {
+	                            _context.next = 18;
+	                            break;
+	                        }
+
+	                        console.error('Error reading scene config: default shader name is reserved keyword');
+	                        return _context.abrupt('continue', 22);
+
+	                    case 18:
+	                        promises.push({
+	                            name: material.name,
+	                            type: 'material',
+	                            dataType: material.type,
+	                            data: material.data,
+	                            shader: material.shader || 'default'
+	                        });
+
+	                    case 19:
+	                        _context.next = 22;
+	                        break;
+
+	                    case 21:
+	                        console.error('Error reading scene config: required material props are name, type, data');
+
+	                    case 22:
+	                        _i++;
+	                        _context.next = 8;
+	                        break;
+
+	                    case 25:
+
+	                        // Meshes
+	                        if (typeof congig.meshes !== 'undefined') {
+	                            for (_i2 = 0; _i2 < config.meshes.length; _i2++) {
+	                                mesh = config.meshes[_i2];
+
+	                                if ((0, _utils.hasProps)(mesh, 'name', 'type', 'data')) {
+	                                    (0, _mesh.makeMeshRequest)(mesh.type, mesh.data, {
+	                                        type: 'mesh',
+	                                        name: mesh.name,
+	                                        mode: typeof mesh.mode === 'undefined' ? 'triangles' : mesh.mode
+	                                    });
+	                                } else {
+	                                    console.error('Error reading scene config: required mesh props are name, type, data');
+	                                }
+	                            }
+	                        }
+
+	                        _context.next = 28;
+	                        return Promise.all(promises);
+
+	                    case 28:
+	                        results = _context.sent;
+
+
+	                        results.filter(function (item) {
+	                            return item !== null;
+	                        }).forEach(function (item) {
+	                            switch (item.type) {
+	                                case 'material':
+	                                    scene.addMaterial(item.name, {
+	                                        shader: item.shader,
+	                                        type: item.dataType,
+	                                        data: item.data
+	                                    });
+	                                    break;
+	                                case 'texture':
+	                                    scene.addTexture(item.name, item.data);
+	                                    break;
+	                                case 'mesh':
+	                                    scene.addMesh(item.name, _extends({
+	                                        mode: item.mode
+	                                    }, item.data));
+	                                    break;
+	                            }
+	                        });
+
+	                        return _context.abrupt('return', scene);
+
+	                    case 31:
 	                    case 'end':
 	                        return _context.stop();
 	                }
@@ -15973,14 +16358,34 @@
 	        }, _callee, this);
 	    }));
 
-	    return function loadScene(_x) {
+	    return function loadScene(_x, _x2) {
 	        return _ref.apply(this, arguments);
 	    };
 	}();
 
-	var _request = __webpack_require__(318);
+	var _mouseorbit = __webpack_require__(312);
+
+	var _mouseorbit2 = _interopRequireDefault(_mouseorbit);
+
+	var _transform = __webpack_require__(315);
+
+	var _transform2 = _interopRequireDefault(_transform);
+
+	var _request = __webpack_require__(311);
 
 	var _request2 = _interopRequireDefault(_request);
+
+	var _shader = __webpack_require__(317);
+
+	var _shader2 = _interopRequireDefault(_shader);
+
+	var _tex2d = __webpack_require__(319);
+
+	var _utils = __webpack_require__(320);
+
+	var _mesh = __webpack_require__(310);
+
+	var _mesh2 = _interopRequireDefault(_mesh);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -15989,26 +16394,50 @@
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	var Scene = function () {
-	    function Scene() {
+	    function Scene(gl) {
 	        _classCallCheck(this, Scene);
 
+	        this._gl = gl;
 	        this.meshes = new Map();
 	        this.textures = new Map();
+	        this.materials = new Map();
 	        this.samplers = new Map();
+	        this.shaders = new Map();
+	        this.materials = new Map();
+	        this.camera = new _mouseorbit2.default(new _transform2.default({}), new _transform2.default({}));
 	    }
 
 	    _createClass(Scene, [{
 	        key: 'addMesh',
-	        value: function addMesh(name, mesh) {
+	        value: function addMesh(name, data) {
 	            if (!this.meshes.has(name)) {
+	                var mesh = new _mesh2.default(this.gl);
+	                mesh.create(data);
 	                this.meshes.set(name, mesh);
 	            }
 	        }
 	    }, {
-	        key: 'addTextures',
-	        value: function addTextures(name, texture) {
+	        key: 'addTexture',
+	        value: function addTexture(name, image) {
 	            if (!this.textures.has(name)) {
+	                var texture = new _tex2d.GLTexture2d(this.gl);
+	                texture.loadImage(image, true);
 	                this.textures.set(name, texture);
+	            }
+	        }
+	    }, {
+	        key: 'addMaterial',
+	        value: function addMaterial(name, material) {
+	            if (!this.materials.has(name)) {
+	                this.materials.set(name, material);
+	            }
+	        }
+	    }, {
+	        key: 'addShader',
+	        value: function addShader(name, data, uniforms) {
+	            if (!this.shaders.has(name)) {
+	                var shader = new _shader2.default(this.gl);
+	                this.shaders.set(name, data, uniforms);
 	            }
 	        }
 	    }, {
@@ -16017,12 +16446,23 @@
 	            this.meshes.forEach(function (m) {
 	                return m.dispose();
 	            });
-	            this.texutres.forEach(function (t) {
+	            this.textures.forEach(function (t) {
 	                return t.dispose();
 	            });
 	            this.samplers.forEach(function (s) {
 	                return s.dipose();
 	            });
+	            this.shaders.forEach(function (s) {
+	                return s.dipose();
+	            });
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render() {}
+	    }, {
+	        key: 'gl',
+	        get: function get() {
+	            return this._gl;
 	        }
 	    }]);
 
@@ -16032,7 +16472,7 @@
 	exports.default = Scene;
 
 /***/ },
-/* 318 */
+/* 319 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -16040,40 +16480,239 @@
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
 	});
-	exports.default = makeRequest;
-	exports.makeImageRequest = makeImageRequest;
-	function makeRequest(method, url) {
-	    return new Promise(function (resolve, reject) {
-	        var xhr = new XMLHttpRequest();
-	        xhr.open(method, url);
-	        xhr.onload = function () {
-	            if (this.status >= 200 && this.status < 300) {
-	                resolve(xhr.response);
-	            } else {
-	                reject({ status: this.status, statusText: xhr.statusText });
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	exports.default = tex2d;
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function tex2d() {
+	    var data = null;
+	    var components = 0;
+	    var width = 0;
+	    var height = 0;
+
+	    var getIndex = function getIndex(x, y) {
+	        return components * (y * width + x);
+	    };
+
+	    this.create = function (w, h, n, format) {
+	        width = w || 1;
+	        height = h || 1;
+	        components = n || 4;
+	        data = new Uint8Array(width * height * components);
+	        return this;
+	    };
+
+	    this.setPixel = function (x, y, color) {
+	        if (x < 0 || x >= width || y < 0 || y >= height) {
+	            return;
+	        }
+	        var index = getIndex(x, y);
+	        for (var i = 0; i < Math.min(color.length, components); i++) {
+	            data[index + i] = color[i];
+	        }
+	    };
+
+	    this.fill = function (color) {
+	        for (var y = 0; y < height; y++) {
+	            for (var x = 0; x < width; x++) {
+	                var index = getIndex(x, y);
+	                for (var i = 0; i < Math.min(color.length, components); i++) {
+	                    data[index + i] = color[i];
+	                }
 	            }
+	        }
+	        return this;
+	    };
+
+	    this.fillRect = function (rx, ry, rwidth, rheight, color) {
+	        for (var y = ry; y < Math.min(height, ry + rheight); y++) {
+	            for (var x = rx; x < Math.min(width, rx + rwidth); x++) {
+	                var index = getIndex(x, y);
+	                for (var i = 0; i < Math.min(color.length, components); i++) {
+	                    data[index + i] = color[i];
+	                }
+	            }
+	        }
+	        return this;
+	    };
+
+	    this.furTexture = function (density, furColor, defaultColor) {
+	        furColor = typeof furColor === 'undefined' || furColor.length < components ? new Uint8Array(components).fill(255) : furColor;
+	        defaultColor = typeof defaultColor === 'undefined' ? new Uint8Array(components).fill(0) : defaultColor;
+
+	        this.fill(defaultColor);
+
+	        var pixelCount = width * height;
+	        var numStrands = Math.floor(density * pixelCount);
+
+	        var randomInt = function randomInt(min, max) {
+	            return Math.floor(Math.random() * (max - min + 1)) + min;
 	        };
-	        xhr.onerror = function () {
-	            reject({ status: this.status, statusText: xhr.statusText });
-	        };
-	        xhr.send();
-	    });
+
+	        for (var i = 0; i < numStrands; i++) {
+	            var x = randomInt(0, width - 1);
+	            var y = randomInt(0, height - 1);
+	            var index = getIndex(x, y);
+	            for (var _i = 0; _i < Math.min(furColor.length, components); _i++) {
+	                data[index + _i] = furColor[_i];
+	            }
+	        }
+
+	        return this;
+	    };
+
+	    this.getData = function () {
+	        return data;
+	    };
+
+	    this.getWidth = function () {
+	        return width;
+	    };
+
+	    this.getHeight = function () {
+	        return height;
+	    };
+
+	    this.numComponents = function () {
+	        return components;
+	    };
 	}
 
-	function makeImageRequest(src) {
-	    return new Promise(function (resolve, reject) {
-	        var image = new Image();
-	        image.src = src;
-	        image.onload = function () {
-	            resolve({
-	                type: 'image',
-	                data: image
-	            });
-	        };
-	        image.onerror = function (e) {
-	            reject(e);
-	        };
-	    });
+	var GLSampler = exports.GLSampler = function () {
+	    function GLSampler(gl) {
+	        _classCallCheck(this, GLSampler);
+
+	        this._gl = gl;
+	        this._sampler = gl.createSampler();
+
+	        gl.samplerParameteri(this.sampler, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+	        gl.samplerParameteri(this.sampler, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+	        gl.samplerParameteri(this.sampler, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	        gl.samplerParameteri(this.sampler, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+	        gl.samplerParameteri(this.sampler, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE);
+	        gl.samplerParameterf(this.sampler, gl.TEXTURE_MIN_LOD, -1000.0);
+	        gl.samplerParameterf(this.sampler, gl.TEXTURE_MAX_LOD, 1000.0);
+	        gl.samplerParameteri(this.sampler, gl.TEXTURE_COMPARE_MODE, gl.NONE);
+	        gl.samplerParameteri(this.sampler, gl.TEXTURE_COMPARE_FUNC, gl.LEQUAL);
+	    }
+
+	    _createClass(GLSampler, [{
+	        key: 'bind',
+	        value: function bind(loc) {
+	            loc = loc || 0;
+	            this.gl.bindSampler(loc, this.sampler);
+	        }
+	    }, {
+	        key: 'dispose',
+	        value: function dispose() {
+	            if (this._sampler === null) {
+	                return;
+	            }
+	            gl.deleteSampler(this.sampler);
+	            this._sampler = null;
+	        }
+	    }, {
+	        key: 'gl',
+	        get: function get() {
+	            return this._gl;
+	        }
+	    }, {
+	        key: 'sampler',
+	        get: function get() {
+	            return this._sampler;
+	        }
+	    }]);
+
+	    return GLSampler;
+	}();
+
+	var GLTexture2d = exports.GLTexture2d = function () {
+	    function GLTexture2d(gl) {
+	        _classCallCheck(this, GLTexture2d);
+
+	        this._gl = gl;
+	        this._tex = gl.createTexture();
+	    }
+
+	    _createClass(GLTexture2d, [{
+	        key: 'loadImage',
+	        value: function loadImage(image, generateMipmap) {
+	            var gl = this.gl;
+	            gl.bindTexture(gl.TEXTURE_2D, this.texture);
+	            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+	            if (generateMipmap) {
+	                gl.generateMipmap(gl.TEXTURE_2D);
+	            }
+	            gl.bindTexture(gl.TEXTURE_2D, null);
+	        }
+	    }, {
+	        key: 'loadData',
+	        value: function loadData(image, generateMipmap) {
+	            var gl = this.gl;
+	            gl.bindTexture(gl.TEXTURE_2D, this.texture);
+	            gl.texImage2D(gl.TEXTURE_2D, 0, image.format, image.width, image.height, 0, image.format, gl.UNSIGNED_BYTE, image.data);
+	            if (generateMipmap) {
+	                gl.generateMipmap(gl.TEXTURE_2D);
+	            }
+	            gl.bindTexture(gl.TEXTURE_2D, null);
+	        }
+	    }, {
+	        key: 'bind',
+	        value: function bind(loc, sampler) {
+	            var gl = this.gl;
+	            loc = loc || 0;
+	            gl.activeTexture(gl.TEXTURE0 + loc);
+	            gl.bindTexture(gl.TEXTURE_2D, this.texture);
+	            sampler.bind(loc);
+	        }
+	    }, {
+	        key: 'dispose',
+	        value: function dispose() {
+	            if (this.texture === null) {
+	                return;
+	            }
+	            this.gl.deleteTexture(this.texture);
+	            this._tex = null;
+	        }
+	    }, {
+	        key: 'gl',
+	        get: function get() {
+	            return this._gl;
+	        }
+	    }, {
+	        key: 'texture',
+	        get: function get() {
+	            return this._tex;
+	        }
+	    }]);
+
+	    return GLTexture2d;
+	}();
+
+/***/ },
+/* 320 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	exports.hasProps = hasProps;
+	function hasProps(obj) {
+	    for (var _len = arguments.length, props = Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+	        props[_key - 1] = arguments[_key];
+	    }
+
+	    for (var i = 0; i < props.length; i++) {
+	        if (!obj.hasOwnProperty(props[i])) {
+	            return false;
+	        }
+	    }
+	    return true;
 	}
 
 /***/ }

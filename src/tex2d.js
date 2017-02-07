@@ -50,7 +50,7 @@ export default function tex2d() {
         return this;
     };
 
-    this.furTexture(density, furColor, defaultColor) {
+    this.furTexture = function(density, furColor, defaultColor) {
         furColor = typeof furColor === 'undefined' || furColor.length < components ?
             new Uint8Array(components).fill(255) : furColor;
         defaultColor = typeof defaultColor === 'undefined' ?
@@ -133,9 +133,8 @@ export class GLSampler {
 }
 
 export class GLTexture2d {
-    constructor(gl, sampler, image) {
+    constructor(gl) {
         this._gl = gl;
-        this.sampler = sampler;
         this._tex = gl.createTexture();
     }
 
@@ -159,12 +158,12 @@ export class GLTexture2d {
         gl.bindTexture(gl.TEXTURE_2D, null);
     }
 
-    bind(loc) {
+    bind(loc, sampler) {
         const gl = this.gl;
         loc = loc || 0;
         gl.activeTexture(gl.TEXTURE0 + loc);
         gl.bindTexture(gl.TEXTURE_2D, this.texture);
-        this.sampler.bind(loc);
+        sampler.bind(loc);
     }
 
     dispose() {

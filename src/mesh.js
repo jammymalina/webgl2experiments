@@ -1,16 +1,68 @@
+import { makeRequest } from './request';
+
 export const POSITION_LOCATION = 0;
 export const NORMAL_LOCATION = 1;
 export const UV_LOCATION = 2;
 
-export default class BasicMesh
-{
+export async function makeMeshRequest(type, data, metadata) {
+    type = type.toLowerCase();
+    if (type === 'model') {
+        try {
+            const result = await makeRequest('GET', data, metadata);
+            const indices = result && result.data && result.data.index && result.data.index.array;
+            const attributes = result && result.data && result.data.attributes;
+            const vertices = attributes && attributes.position && attributes.position.array;
+            const normals = attributes && attributes.normal && attributes.normal.array;
+            const uvs = attributes && attributes.uv && attributes.uv.array;
+            return {
+                ...metadata,
+                data: {
+                    indices,
+                    vertices,
+                    normals,
+                    uvs
+                }
+            };
+        } catch (error) {
+            console.error("Error with mesh request: ", err);
+            return null;
+        }
+    } else if (type === 'raw' || type === 'raw_data' || type === 'rawdata') {
+        return null;
+    } else if (type === 'geometry' || type === 'geom') {
+        return null;
+    }
+}
+
+export function mapNameMode(name, gl) {
+    name = name.toLowerCase();
+    switch (name) {
+        case 'points':
+            return gl.POINTS;
+        case 'lines':
+            return gl.LINES;
+        case 'line_strip':
+            return gl.LINE_STRIP;
+        case 'line_loop':
+            return gl.LINE_LOOP;
+        case 'triangles':
+            return gl.TRIANGLES;
+        case 'triangle_strip':
+            return gl.TRIANGLE_STRIP;
+        case 'triangle_fan':
+            return gl.TRIANGLE_FAN;
+    }
+    return gl.TRIANGLES;
+}
+
+export default class BasicMesh {
     constructor(gl, material) {
         this._vao = null;
         this._buffer = null;
         this._indicesBuffer = null;
         this._gl = gl;
         this._indexed = false;
-        this._material = material;
+        this._material = material || null;
         this._numIndices = 0;
         this._mode = gl.TRIANGLES;
     }
@@ -33,7 +85,7 @@ export default class BasicMesh
     }
 
     draw(shader) {
-        if (this.vao === null) {
+        if (this.vao === null || (shader === null && this.material === null)) {
             return;
         }
         if (typeof shader === 'undefined') {
@@ -70,7 +122,7 @@ export default class BasicMesh
         this._buffer = gl.createBuffer();
 
         if (typeof mode !== 'undefined') {
-            this._mode = mode;
+            this._mode = mapNameMode(mode, gl);
         }
 
         let bufferSizes = [];

@@ -1,10 +1,17 @@
-export default function makeRequest(method, url) {
+export default function makeRequest(method, url, metadata, progressCallback) {
     return new Promise(function(resolve, reject) {
         let xhr = new XMLHttpRequest();
         xhr.open(method, url);
         xhr.onload = function() {
             if (this.status >= 200 && this.status < 300) {
-                resolve(xhr.response);
+                if (typeof progressCallback !== 'undefined') {
+                    progressCallback();
+                }
+                metadata = metadata || {};
+                resolve({
+                    ...metadata,
+                    data: xhr.response
+                });
             } else {
                 reject({status: this.status, statusText: xhr.statusText});
             }
@@ -16,7 +23,7 @@ export default function makeRequest(method, url) {
     });
 }
 
-export function makeImageRequest(src, progressCallback) {
+export function makeImageRequest(src, metadata, progressCallback) {
     return new Promise(function(resolve, reject) {
         let image = new Image();
         image.src = src;
@@ -24,49 +31,14 @@ export function makeImageRequest(src, progressCallback) {
             if (typeof progressCallback !== 'undefined') {
                 progressCallback();
             }
+            metadata = metadata || {};
             resolve({
-                type: 'image',
+                ...metadata,
                 data: image
             });
         };
         image.onerror = function(e) {
             reject(e);
         };
-    });
-}
-
-export function makeShaderRequest(shaders, progressCallback) {
-    if (shaders.length < 2) {
-        return null;
-    }
-    let promises = [];
-
-    for (let i = 0; i < shaders.length; i++) {
-        const p = new Promise(function(resolve, reject) {
-            let type;
-            if (shaders[i].endsWith(".vert") || shaders[i].endsWith(".vs")) {
-                type = "vertex";
-            } else if (shaders[i].endsWith(".frag") || shaders[i].endsWith(".fs")) {
-                type = "fragment";
-            } else {
-                type = "vertex";
-            }
-            makeRequest('GET', shaders[0]).then(function(src) {
-                resolve({
-                    type,
-                    src
-                });
-            }).catch(function(e) {
-                reject(e);
-            })
-        });
-        promises.push(p);
-    }
-
-    return new Promise(function(resolve, reject) {
-        Promise.all(promises).then(function(results) {
-        }).catch(function(e) {
-            reject(e);
-        })
     });
 }
