@@ -11,9 +11,9 @@ let gl;
 window.addEventListener('load', function() {
     gl = new GLInstance('glcanvas').frameSetSize(500, 500).frameClear();
 
-    loadScene('./src/scenes/basic.json').then(scene => {
+    loadScene(gl, './src/scenes/basic.json').then(scene => {
         console.log('Loading scene finished');
-        console.log(scene);
+        scene.render();
     });
 
     window.addEventListener('resize', function() {

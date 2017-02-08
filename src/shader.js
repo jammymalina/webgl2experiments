@@ -1,3 +1,5 @@
+import makeRequest from './request';
+
 export function mapExtensionType(url) {
     let type = 'vertex';
     if (url.endsWith('.vert') || url.endsWith('.vs')) {
@@ -60,11 +62,18 @@ export async function makeShaderRequest(shaders, metadata, progressCallback) {
         promises.push(p);
     }
 
-    const data = await Promise.all(promises);
-    return {
-        ...metadata,
-        data
-    };
+    try {
+        const data = await Promise.all(promises);
+        return {
+            ...metadata,
+            data
+        };
+    } catch (err) {
+        console.error('Augh, there was an error while loading shader!', err);
+        return null;
+    }
+
+    return null;
 }
 
 export default class Shader {

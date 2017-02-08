@@ -1,10 +1,112 @@
 import MouseOrbitCamera from './camera/mouseorbit';
 import Transform from './transform';
 import makeRequest, { makeImageRequest } from './request';
-import Shader from './shader';
+import Shader, { makeShaderRequest } from './shader';
 import { GLTexture2d } from './tex2d';
 import { hasProps } from './utils';
 import BasicMesh, { makeMeshRequest } from './mesh';
+
+export async function loadScene(gl, sceneURL, progress) {
+    const scene = new Scene(gl);
+    const config = await makeRequest('GET', sceneURL, {}).then(res => JSON.parse(res.data)).catch((err) => {
+        console.error('Augh, there was an error while loading scene!', err.statusText);
+        return null;
+    });
+    let promises = [];
+
+    // shaders
+    if (typeof config.shaders !== 'undefined') {
+        for (let i = 0; i < config.shaders.length; i++) {
+            const shader = config.shaders[i];
+            if (hasProps(shader, 'name', 'src')) {
+                if (shader.name === 'default') {
+                    console.error('Error reading scene config: default shader name is reserved keyword');
+                    continue;
+                }
+                const uniforms = shader.uniforms;
+                promises.push(makeShaderRequest(shader.src, {type: 'shader', name: shader.name, uniforms}));
+            } else {
+                console.error('Error reading scene config: required shader props are name, src');
+            }
+        }
+    }
+
+    // textures
+    if (typeof config.textures !== 'undefined') {
+        for (let i = 0; i < config.materials.length; i++) {
+            const texture = config.textures[i];
+            if (hasProps(texture, 'src', 'name')) {
+                promises.push(makeImageRequest(texture.src, {type: 'texture', name: texture.name}));
+            } else {
+                console.error('Error reading scene config: required texture props are name, src');
+            }
+        }
+    }
+
+    // materials
+    if (typeof config.materials !== 'undefined') {
+        for (let i = 0; i < config.materials.length; i++) {
+            const material = config.materials[i];
+            if (hasProps(material, 'name', 'type', 'data')) {
+                if (material.name === 'default') {
+                    console.error('Error reading scene config: default material name is reserved keyword');
+                } else {
+                    promises.push({
+                        name: material.name,
+                        type: 'material',
+                        dataType: material.type,
+                        data: material.data,
+                        shader: material.shader || 'default'
+                    });
+                }
+            } else {
+                console.error('Error reading scene config: required material props are name, type, data');
+            }
+        }
+    }
+
+    // Meshes
+    if (typeof config.meshes !== 'undefined') {
+        for (let i = 0; i < config.meshes.length; i++) {
+            const mesh = config.meshes[i];
+            if (hasProps(mesh, 'name', 'type', 'data')) {
+                promises.push(makeMeshRequest(mesh.type, mesh.data, {
+                    type: 'mesh',
+                    name: mesh.name,
+                    mode: typeof mesh.mode === 'undefined' ? 'triangles' : mesh.mode
+                }));
+            } else {
+                console.error('Error reading scene config: required mesh props are name, type, data');
+            }
+        }
+    }
+
+    const results = await Promise.all(promises);
+
+    results.filter(item => item !== null).forEach(item => {
+        console.log('Loaded item: ', item);
+        switch (item.type) {
+            case 'material':
+                scene.addMaterial(item.name, {
+                    shader: item.shader,
+                    type: item.dataType,
+                    data: item.data
+                });
+                break;
+            case 'texture':
+                scene.addTexture(item.name, item.data);
+                break;
+            case 'mesh':
+                scene.addMesh(item.name, {
+                    mode: item.mode,
+                    ...item.data
+                });
+                break;
+        }
+    })
+
+    return scene;
+}
 
 export default class Scene {
     constructor(gl) {
@@ -55,98 +157,9 @@ export default class Scene {
     }
 
     render() {
-
     }
 
     get gl() {
         return this._gl;
     }
-}
-
-export async function loadScene(sceneURL, progress) {
-    const scene = new Scene();
-    const config = await makeRequest('GET', sceneURL, {}).then(res => JSON.parse(res.data)).catch((err) => {
-        console.error('Augh, there was an error while loading scene!', err.statusText);
-        return null;
-    });
-    let promises = [];
-
-    // textures
-    if (typeof config.textures !== 'undefined') {
-        for (let i = 0; i < config.materials.length; i++) {
-            const texture = config.textures[i];
-            if (hasProps(texture, 'src', 'name')) {
-                promises.push(makeImageRequest(texture.src, {type: 'texture', name: texture.name}));
-            } else {
-                console.error('Error reading scene config: required texture props are name, src');
-            }
-        }
-    }
-
-    // materials
-    if (typeof config.materials !== 'undefined') {
-        for (let i = 0; i < config.materials.length; i++) {
-            const material = config.materials[i];
-            if (hasProps(material, 'name', 'type', 'data')) {
-                if (material.name === 'default') {
-                    console.error('Error reading scene config: default material name is reserved keyword');
-                } else {
-                    if (material.shader === 'default') {
-                        console.error('Error reading scene config: default shader name is reserved keyword');
-                        continue;
-                    }
-                    promises.push({
-                        name: material.name,
-                        type: 'material',
-                        dataType: material.type,
-                        data: material.data,
-                        shader: material.shader || 'default'
-                    });
-                }
-            } else {
-                console.error('Error reading scene config: required material props are name, type, data');
-            }
-        }
-    }
-
-    // Meshes
-    if (typeof congig.meshes !== 'undefined') {
-        for (let i = 0; i < config.meshes.length; i++) {
-            const mesh = config.meshes[i];
-            if (hasProps(mesh, 'name', 'type', 'data')) {
-                makeMeshRequest(mesh.type, mesh.data, {
-                    type: 'mesh',
-                    name: mesh.name,
-                    mode: typeof mesh.mode === 'undefined' ? 'triangles' : mesh.mode
-                });
-            } else {
-                console.error('Error reading scene config: required mesh props are name, type, data');
-            }
-        }
-    }
-
-    const results = await Promise.all(promises);
-
-    results.filter(item => item !== null).forEach(item => {
-        switch (item.type) {
-            case 'material':
-                scene.addMaterial(item.name, {
-                    shader: item.shader,
-                    type: item.dataType,
-                    data: item.data
-                });
-                break;
-            case 'texture':
-                scene.addTexture(item.name, item.data);
-                break;
-            case 'mesh':
-                scene.addMesh(item.name, {
-                    mode: item.mode,
-                    ...item.data
-                });
-                break;
-        }
-    })
-
-    return scene;
 }

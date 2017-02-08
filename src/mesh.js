@@ -1,32 +1,48 @@
-import { makeRequest } from './request';
+import makeRequest from './request';
 
 export const POSITION_LOCATION = 0;
 export const NORMAL_LOCATION = 1;
 export const UV_LOCATION = 2;
 
-export async function makeMeshRequest(type, data, metadata) {
+export async function makeMeshRequest(type, src, metadata) {
     type = type.toLowerCase();
     if (type === 'model') {
-        try {
-            const result = await makeRequest('GET', data, metadata);
-            const indices = result && result.data && result.data.index && result.data.index.array;
-            const attributes = result && result.data && result.data.attributes;
-            const vertices = attributes && attributes.position && attributes.position.array;
-            const normals = attributes && attributes.normal && attributes.normal.array;
-            const uvs = attributes && attributes.uv && attributes.uv.array;
-            return {
-                ...metadata,
-                data: {
-                    indices,
-                    vertices,
-                    normals,
-                    uvs
-                }
-            };
-        } catch (error) {
-            console.error("Error with mesh request: ", err);
+        const result = await makeRequest('GET', src, {}).then(res => JSON.parse(res.data)).catch((err) => {
+            console.error('Augh, there was an error while loading mesh!', err);
             return null;
+        });
+        const indices = result && result.data && result.data.index;
+        const attributes = result && result.data && result.data.attributes;
+        const vertices = attributes && attributes.position;
+        const normals = attributes && attributes.normal;
+        const uvs = attributes && attributes.uv;
+        let data = {};
+        if (indices) {
+            data.indices = indices;
         }
+        if (vertices) {
+            data.vertices = {
+                data: vertices.array || [],
+                dimension: vertices.itemSize
+            };
+        }
+        if (normals) {
+            data.normals = {
+                data: normals.array || [],
+                dimension: normals.itemSize
+            };
+        }
+        if (uvs) {
+            data.uvs = {
+                data: uvs.array || [],
+                dimension: uvs.itemSize
+            };
+        }
+        return {
+            ...metadata,
+            data
+        };
+
     } else if (type === 'raw' || type === 'raw_data' || type === 'rawdata') {
         return null;
     } else if (type === 'geometry' || type === 'geom') {
@@ -114,7 +130,7 @@ export default class BasicMesh {
 
     create({ vertices, indices, normals, uvs, mode }) {
         if (this.vao !== null) {
-            return;
+            return false;
         }
 
         const gl = this.gl;
@@ -147,7 +163,11 @@ export default class BasicMesh {
             bufferSizes.push(Math.floor(uvs.data.length / vsize));
             vertexSizes.push(vsize);
         }
-        const maxBufferSize = Math.min(...bufferSizes);
+        const maxBufferSize = bufferSizes.length === 0 ? 0 : Math.min(...bufferSizes);
+        if (maxBufferSize === 0) {
+            this.dispose();
+            return false;
+        }
         f = new Float32Array(BasicMesh.flatten(f, vertexSizes, maxBufferSize));
 
         gl.bindVertexArray(this.vao);
@@ -215,6 +235,7 @@ export default class BasicMesh {
 
         gl.bindVertexArray(null);
 
+        return true;
     }
 
     dispose() {
