@@ -1,6 +1,5 @@
 import GLInstance from './gl';
 import BasicMesh from './mesh';
-import MouseOrbitCamera from './camera/mouseorbit';
 import planeBufferGeometry from './geometry/plane';
 import Shader from './shader';
 import Transform from './transform';

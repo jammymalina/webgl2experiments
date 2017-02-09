@@ -1,4 +1,3 @@
-import MouseOrbitCamera from './camera/mouseorbit';
 import Transform from './transform';
 import makeRequest, { makeImageRequest } from './request';
 import Shader, { makeShaderRequest } from './shader';
