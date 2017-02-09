@@ -2,9 +2,10 @@ import MouseOrbitCamera from './camera/mouseorbit';
 import Transform from './transform';
 import makeRequest, { makeImageRequest } from './request';
 import Shader, { makeShaderRequest } from './shader';
-import { GLTexture2d } from './tex2d';
+import { GLTexture2d, GLSampler } from './tex2d';
 import { hasProps } from './utils';
 import BasicMesh, { makeMeshRequest } from './mesh';
+import { MouseInput } from './input';
 
 export async function loadScene(gl, sceneURL, progress) {
     const scene = new Scene(gl);
@@ -102,6 +103,9 @@ export async function loadScene(gl, sceneURL, progress) {
                     ...item.data
                 });
                 break;
+            case 'shader':
+                scene.addShader(item.name, item.data, item.uniforms);
+                break;
         }
     })
 
@@ -117,7 +121,7 @@ export default class Scene {
         this.samplers = new Map();
         this.shaders = new Map();
         this.materials = new Map();
-        this.camera = new MouseOrbitCamera(new Transform({}), new Transform({}));
+        this.camera = new MouseOrbitCamera(new Transform({}), new Transform({rotation: [0, Math.PI, 0], position: [0, 0, -2]}), 500, 500);
     }
 
     addMesh(name, data) {
@@ -145,7 +149,8 @@ export default class Scene {
     addShader(name, data, uniforms) {
         if (!this.shaders.has(name)) {
             const shader = new Shader(this.gl);
-            this.shaders.set(name, data, uniforms);
+            shader.createProgram(data, uniforms);
+            this.shaders.set(name, shader);
         }
     }
 
@@ -157,6 +162,28 @@ export default class Scene {
     }
 
     render() {
+        const gl = this.gl;
+        gl.frameClear();
+        const mesh = this.meshes.get('duck');
+        const sampler = new GLSampler(gl);
+        const texture = this.textures.get('duck');
+        const shader = this.shaders.get('lambert');
+        const viewMat = this.camera.mat;
+        shader.use();
+
+        shader.setUniform_mat4('perspective_matrix', this.camera.projectionMatrix);
+        shader.setUniform_mat4('model_view_matrix', this.camera.transform.mat);
+        shader.setUniform_mat4('normal_matrix', this.camera.transform.mat);
+        shader.setUniform_int('diffuse_texture', 0);
+        shader.setUniform_vec3('light_direction_view', [1, 1, 1]);
+
+        //console.log(this.camera.projectionMatrix);
+        console.log(this.camera.transform.mat);
+
+        texture.bind(0, sampler);
+        mesh.draw(shader);
+
+        shader.stop();
     }
 
     get gl() {

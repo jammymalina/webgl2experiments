@@ -1,4 +1,4 @@
-class RenderLoop {
+export default class RenderLoop {
     constructor(callback, fps) {
         this.msLastFrame = null;
         this.callback = callback;

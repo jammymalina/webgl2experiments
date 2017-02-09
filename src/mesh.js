@@ -108,7 +108,7 @@ export default class BasicMesh {
             this.material.shader.use();
         }
         const s = shader || this.material.shader;
-        const uniforms = this.material.uniforms || [];
+        const uniforms = (this.material && this.material.uniforms) || [];
 
         uniforms.forEach(u => {
             s[`setUniform_${u.type}`](u.name, u.value);
@@ -230,10 +230,10 @@ export default class BasicMesh {
             this._numIndices = maxBufferSize;
         }
 
+        gl.bindVertexArray(null);
+
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
-
-        gl.bindVertexArray(null);
 
         return true;
     }

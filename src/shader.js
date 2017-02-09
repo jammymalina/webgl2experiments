@@ -84,37 +84,31 @@ export default class Shader {
         this._uniforms = new Map();
     }
 
-    createProgram() {
-        this._program = this.gl.createProgram();
-    }
-
-    _compileShader(type, shader_source) {
+    _compileShader(type, shaderSRC) {
         const gl = this.gl;
         const shader = gl.createShader(type);
-        gl.shaderSource(shader, shader_source);
+        gl.shaderSource(shader, shaderSRC);
+        gl.compileShader(shader);
         if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
             console.error('Error compiling shader: ');
             console.log(shader_source);
-            console.error(gl.getShaderInfoLog(shader));
+            const error = gl.getShaderInfoLog(shader);
+            console.error(error);
             gl.deleteShader(shader);
             return null;
         }
-        gl.attachShader(this.program, shader);
         return shader;
     }
 
-    compileShaders(shaders, uniforms) {
+    createProgram(shaders, uniforms) {
         if (this.isLinked()) {
             return;
         }
-        if (this.program === null) {
-            this.createProgram();
-        }
         const gl = this.gl;
-        const program = this.program;
+        const program = gl.createProgram();
+        this._program = program;
         let compiledShaders = [];
 
-        gl.useProgram(program);
         for (let i = 0; i < shaders.length; i++) {
             let type;
             switch (shaders[i].type) {
@@ -143,6 +137,8 @@ export default class Shader {
 		}
 
         compiledShaders.forEach(shader => gl.deleteShader(shader));
+
+        gl.useProgram(program);
         uniforms.forEach(uniform => {
             if (!this.hasUniform(uniform)) {
                 this._uniforms.set(uniform, gl.getUniformLocation(program, uniform));
@@ -195,12 +191,18 @@ export default class Shader {
     }
 
     setUniform(name, val, f) {
-        if (!this.isLinked() || !this.hasUniform(name)) return;
+        if (!this.isLinked() || !this.hasUniform(name)) {
+            console.warn('Shader - no uniform: ', name);
+            return;
+        }
         this.gl[f](this.getUniformLocation(name), val);
     }
 
     setMatrixUniform(name, val, transpose, f) {
-        if (!this.isLinked() || !this.hasUniform(name)) return;
+        if (!this.isLinked() || !this.hasUniform(name)) {
+            console.warn('Shader - no uniform: ', name);
+            return;
+        }
         this.gl[f](this.getUniformLocation(name), transpose, val);
     }
 

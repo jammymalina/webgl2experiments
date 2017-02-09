@@ -49,6 +49,7 @@ window.addEventListener('wheel', function(e) {
     mouse.wheelDelta = e.wheelDelta;
     if (wheelTimeout !== null) {
         clearTimeout(wheelTimeout);
+        wheelTimeout = null;
     }
     wheelTimeout = setTimeout(function() {
         mouse.wheelDelta = 0;
@@ -74,6 +75,7 @@ export class MouseInput {
     static resetWheelDelta() {
         if (wheelTimeout !== null) {
             clearTimeout(wheelTimeout);
+            wheelTimeout = null;
         }
         mouse.wheelDelta = 0;
     }

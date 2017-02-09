@@ -17,5 +17,6 @@ void main() {
     float cosine = dot(n, l);
     float product = max(cosine, 0.0);
     vec4 tex_color = texture(diffuse_texture, frag_uvs);
-    frag_color = product * tex_color;
+    // frag_color = product * tex_color;
+    frag_color = vec4(1, 0, 0, 1);
 }

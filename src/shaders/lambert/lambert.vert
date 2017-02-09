@@ -15,7 +15,7 @@ smooth out vec3 frag_normal;
 smooth out vec2 frag_uvs;
 
 void main() {
-    frag_normal = normal_matrix;
+    frag_normal = (normal_matrix * vec4(normal, 1.0)).xyz;
     frag_uvs = uvs;
     gl_Position = perspective_matrix * model_view_matrix * vec4(position, 1.0);
 }
