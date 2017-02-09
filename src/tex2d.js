@@ -98,16 +98,20 @@ export class GLSampler {
     constructor(gl) {
         this._gl = gl;
         this._sampler = gl.createSampler();
+    }
 
-        gl.samplerParameteri(this.sampler, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
-        gl.samplerParameteri(this.sampler, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-        gl.samplerParameteri(this.sampler, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.samplerParameteri(this.sampler, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        gl.samplerParameteri(this.sampler, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE);
-        gl.samplerParameterf(this.sampler, gl.TEXTURE_MIN_LOD, -1000.0);
-        gl.samplerParameterf(this.sampler, gl.TEXTURE_MAX_LOD,  1000.0);
-        gl.samplerParameteri(this.sampler, gl.TEXTURE_COMPARE_MODE, gl.NONE);
-        gl.samplerParameteri(this.sampler, gl.TEXTURE_COMPARE_FUNC, gl.LEQUAL);
+    static linearSampler(gl) {
+        const glSampler = new GLSampler(gl);
+        gl.samplerParameteri(glSampler.sampler, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+        gl.samplerParameteri(glSampler.sampler, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.samplerParameteri(glSampler.sampler, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.samplerParameteri(glSampler.sampler, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.samplerParameteri(glSampler.sampler, gl.TEXTURE_WRAP_R, gl.CLAMP_TO_EDGE);
+        gl.samplerParameterf(glSampler.sampler, gl.TEXTURE_MIN_LOD, -1000.0);
+        gl.samplerParameterf(glSampler.sampler, gl.TEXTURE_MAX_LOD,  1000.0);
+        gl.samplerParameteri(glSampler.sampler, gl.TEXTURE_COMPARE_MODE, gl.NONE);
+        gl.samplerParameteri(glSampler.sampler, gl.TEXTURE_COMPARE_FUNC, gl.LEQUAL);
+        return glSampler;
     }
 
     bind(loc) {

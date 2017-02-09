@@ -121,7 +121,9 @@ export default class Scene {
         this.samplers = new Map();
         this.shaders = new Map();
         this.materials = new Map();
-        this.camera = new MouseOrbitCamera(new Transform({}), new Transform({rotation: [0, Math.PI, 0], position: [0, 0, -2]}), 500, 500);
+        this.camera = new MouseOrbitCamera(new Transform({}), new Transform({rotation: [Math.PI / 2, 0, Math.PI / 2], position: [0, -2, -2]}), 500, 500);
+
+        this.samplers.set('linear', GLSampler.linearSampler(this.gl));
     }
 
     addMesh(name, data) {
@@ -164,8 +166,8 @@ export default class Scene {
     render() {
         const gl = this.gl;
         gl.frameClear();
-        const mesh = this.meshes.get('duck');
-        const sampler = new GLSampler(gl);
+        const mesh = this.meshes.get('ground');
+        const sampler = this.samplers.get('linear');
         const texture = this.textures.get('duck');
         const shader = this.shaders.get('lambert');
         const viewMat = this.camera.mat;
@@ -176,9 +178,6 @@ export default class Scene {
         shader.setUniform_mat4('normal_matrix', this.camera.transform.mat);
         shader.setUniform_int('diffuse_texture', 0);
         shader.setUniform_vec3('light_direction_view', [1, 1, 1]);
-
-        //console.log(this.camera.projectionMatrix);
-        console.log(this.camera.transform.mat);
 
         texture.bind(0, sampler);
         mesh.draw(shader);

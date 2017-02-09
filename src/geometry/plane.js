@@ -1,4 +1,4 @@
-export default function planeBufferGeometry({ width, height, widthSegments, heightSegments }) {
+export default function planeGeometry({ width, height, widthSegments, heightSegments }) {
 	const widthHalf  = width  / 2;
 	const heightHalf = height / 2;
 

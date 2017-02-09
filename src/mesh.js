@@ -1,53 +1,77 @@
 import makeRequest from './request';
+import generateGeometry from './geometry';
+import { hasProps } from './utils';
 
 export const POSITION_LOCATION = 0;
 export const NORMAL_LOCATION = 1;
 export const UV_LOCATION = 2;
 
+
 export async function makeMeshRequest(type, src, metadata) {
     type = type.toLowerCase();
+    let data = {};
+    let indices = null, vertices = null, normals = null, uvs = null;
     if (type === 'model') {
         const result = await makeRequest('GET', src, {}).then(res => JSON.parse(res.data)).catch((err) => {
             console.error('Augh, there was an error while loading mesh!', err);
             return null;
         });
-        const indices = result && result.data && result.data.index;
+        indices = result && result.data && result.data.index && result.data.index.array;
         const attributes = result && result.data && result.data.attributes;
-        const vertices = attributes && attributes.position;
-        const normals = attributes && attributes.normal;
-        const uvs = attributes && attributes.uv;
-        let data = {};
-        if (indices) {
-            data.indices = indices;
-        }
-        if (vertices) {
-            data.vertices = {
-                data: vertices.array || [],
-                dimension: vertices.itemSize
-            };
-        }
-        if (normals) {
-            data.normals = {
-                data: normals.array || [],
-                dimension: normals.itemSize
-            };
-        }
-        if (uvs) {
-            data.uvs = {
-                data: uvs.array || [],
-                dimension: uvs.itemSize
-            };
-        }
-        return {
-            ...metadata,
-            data
-        };
+        vertices = attributes && attributes.position;
+        normals = attributes && attributes.normal;
+        uvs = attributes && attributes.uv;
 
     } else if (type === 'raw' || type === 'raw_data' || type === 'rawdata') {
         return null;
     } else if (type === 'geometry' || type === 'geom') {
-        return null;
+        if (!hasProps(src, 'geometry')) {
+            console.error('Missing geometry attribute.');
+            return null;
+        }
+        const geomType = src.geometry;
+        const geomParams = src.params || {};
+        const geomData = generateGeometry(geomType, geomParams);
+        if (data === null) return null;
+        indices = geomData.indices;
+        vertices = {
+            array: geomData.vertices,
+            itemSize: 3
+        };
+        normals = {
+            array: geomData.normals,
+            itemSize: 3
+        };
+        uvs = {
+            array: geomData.uvs,
+            itemSize: 2
+        };
     }
+    if (indices) {
+        data.indices = indices;
+    }
+    if (vertices) {
+        data.vertices = {
+            data: vertices.array || [],
+            dimension: vertices.itemSize
+        };
+    }
+    if (normals) {
+        data.normals = {
+            data: normals.array || [],
+            dimension: normals.itemSize
+        };
+    }
+    if (uvs) {
+        data.uvs = {
+            data: uvs.array || [],
+            dimension: uvs.itemSize
+        };
+    }
+    return {
+        ...metadata,
+        data
+    };
 }
 
 export function mapNameMode(name, gl) {
@@ -132,7 +156,6 @@ export default class BasicMesh {
         if (this.vao !== null) {
             return false;
         }
-
         const gl = this.gl;
         this._vao = gl.createVertexArray();
         this._buffer = gl.createBuffer();
@@ -177,45 +200,49 @@ export default class BasicMesh {
 
         let normal_offset = 0;
         let uv_offset = 0;
+        const vertexByteSize = typeof vertices !== 'undefined' ?
+            vertices.totalByteSize || (vertices.dimension || 3) * gl.getTypeByteSize(gl.FLOAT) : 0;
+        const normalByteSize = typeof normals !== 'undefined' ?
+            normals.totalByteSize || (normals.dimension || 3) * gl.getTypeByteSize(gl.FLOAT) : 0;
+        const uvByteSize    = typeof uvs !== 'undefined' ?
+            uvs.totalByteSize || (uvs.dimension || 2) * gl.getTypeByteSize(gl.FLOAT) : 0;
+        const totalByteSize = vertexByteSize + normalByteSize + uvByteSize;
         if (typeof vertices !== 'undefined') {
             const dimension = vertices.dimension || 3;
-            const totalByteSize = vertices.totalByteSize || dimension * gl.getTypeByteSize(gl.FLOAT);
             gl.enableVertexAttribArray(POSITION_LOCATION);
             gl.vertexAttribPointer(
                 POSITION_LOCATION,
                 dimension,
                 gl.FLOAT,
                 false,
-                0,
+                totalByteSize,
                 0
             );
-            normal_offset += totalByteSize;
-            uv_offset += totalByteSize;
+            normal_offset += vertexByteSize;
+            uv_offset += vertexByteSize;
         }
         if (typeof normals !== 'undefined') {
             const dimension = normals.dimension || 3;
-            const totalByteSize = normals.totalByteSize || dimension * gl.getTypeByteSize(gl.FLOAT);
             gl.enableVertexAttribArray(NORMAL_LOCATION);
             gl.vertexAttribPointer(
                 NORMAL_LOCATION,
                 dimension,
                 gl.FLOAT,
                 false,
-                0,
+                totalByteSize,
                 normal_offset
             );
-            uv_offset += totalByteSize;
+            uv_offset += normalByteSize;
         }
         if (typeof uvs !== 'undefined') {
             const dimension = uvs.dimension || 2;
-            const totalByteSize =  uvs.totalByteSize || dimension * gl.getTypeByteSize(gl.FLOAT);
             gl.enableVertexAttribArray(UV_LOCATION);
             gl.vertexAttribPointer(
                 UV_LOCATION,
                 dimension,
                 gl.FLOAT,
                 false,
-                0,
+                totalByteSize,
                 uv_offset
             );
         }
@@ -224,7 +251,7 @@ export default class BasicMesh {
             this._indexed = true;
             this._indicesBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, this.indicesBuffer);
-            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW);
+            gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(indices), gl.STATIC_DRAW);
             this._numIndices = indices.length;
         } else {
             this._numIndices = maxBufferSize;

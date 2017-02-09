@@ -23,6 +23,18 @@
         "type": "model",
         "mode": "triangles",
         "data": "./resources/models/duck.json"
+    }, {
+        "name": "ground", 
+        "type": "geometry", 
+        "data": {
+            "geometry": "plane", 
+            "params": {
+                "width": 200,
+                "height": 200, 
+                "widthSegments": 1, 
+                "heightSegments": 1
+            }
+        }
     }], 
     "instances": [{
         "mesh": "duck",

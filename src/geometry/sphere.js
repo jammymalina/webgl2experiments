@@ -1,6 +1,6 @@
 import { vec3 } from 'gl-matrix';
 
-export default function sphereBufferGeometry({ radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength }) {
+export default function sphereGeometry({ radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength }) {
 	radius = radius || 50;
 
 	widthSegments  = Math.max(3, Math.floor(widthSegments)  || 8);

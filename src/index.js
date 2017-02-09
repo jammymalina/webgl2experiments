@@ -17,12 +17,13 @@ window.addEventListener('load', function() {
         scene.camera.setViewport(500, 500);
         const loop = new RenderLoop(deltaTime => {
             scene.render();
-            //scene.camera.update(deltaTime);
+            scene.camera.update(deltaTime);
             MouseInput.resetWheelDelta();
             //console.log(deltaTime);
         });
         loop.start();
         console.log('Loading scene finished');
+        console.log(scene);
     });
 
     window.addEventListener('resize', function() {

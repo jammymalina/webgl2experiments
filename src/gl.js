@@ -8,8 +8,8 @@ export default function GLInstance(canvasID) {
         console.error("WebGL 2 context is not available.");
         return null;
     }
-    gl.projectionMatrix = mat4.create();
     gl.clearColor(1.0, 1.0, 1.0, 1.0);
+    gl.enable(gl.DEPTH_TEST);
 
     gl.frameClear = function() {
         this.clear(this.COLOR_BUFFER_BIT | this.DEPTH_BUFFER_BIT);
@@ -23,7 +23,6 @@ export default function GLInstance(canvasID) {
         this.canvas.height = h;
 
         this.viewport(0, 0, w, h);
-        mat4.perspective(this.projectionMatrix, 85, w / h, 0.1, 1000);
         return this;
     };
 
