@@ -1,5 +1,7 @@
 import { mat4, vec3, quat } from 'gl-matrix';
 
+export const EPS = 0.000001;
+
 export function mod(n, m) {
     return ((n % m) + m) % m;
 }
@@ -10,6 +12,46 @@ export function clamp(n, min, max) {
 
 export function lerpf(start, end, t) {
     return (1 - t) * start + t * end;
+}
+
+export class Spherical {
+	constructor(radius, phi, theta) {
+		this.radius = radius || 1.0;
+		this.phi    = phi    || 0;
+		this.theta  = theta  || 0;
+	}
+
+	clone() {
+		return new Spherical(this.radius, this.phi, this.theta);
+	}
+
+	copy(otherSpherical) {
+		this.radius = otherSpherical.radius;
+		this.phi    = otherSpherical.phi;
+		this.theta  = otherSpherical.theta;
+	}
+
+	// restrict phi to be between EPS and PI-EPS
+	adjustPhi() {
+		this.phi = Math.max(EPS, Math.min(Math.PI - EPS, this.phi));
+	}
+
+	fromVector(v) {
+		this.radius = vec3.length(v);
+		if (this.radius === 0) {
+			this.theta = 0;
+			this.phi   = 0;
+		} else {
+			this.theta = Math.atan2(v[0], v[2]);
+			this.phi   = Math.acos(clamp(v[1] / this.radius, -1, 1));
+		}
+	}
+
+	static createFromVector(v) {
+		const spherical = new Spherical();
+		spherical.fromVector(v);
+		return spherical;
+	}
 }
 
 export const Euler = {

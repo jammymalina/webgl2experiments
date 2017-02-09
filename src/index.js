@@ -6,7 +6,6 @@ import Shader from './shader';
 import Transform from './transform';
 import { loadScene } from './scene';
 import RenderLoop from './renderloop';
-import { MouseInput } from './input';
 
 let gl;
 
@@ -18,7 +17,6 @@ window.addEventListener('load', function() {
         const loop = new RenderLoop(deltaTime => {
             scene.render();
             scene.camera.update(deltaTime);
-            MouseInput.resetWheelDelta();
             //console.log(deltaTime);
         });
         loop.start();
