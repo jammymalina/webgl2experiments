@@ -1,6 +1,8 @@
 import { mat4, vec3, quat } from 'gl-matrix';
 
 export const EPS = 0.000001;
+export const DEG_TO_RAD = Math.PI / 180;
+export const RAD_TO_DEG = 180 / Math.PI;
 
 export function mod(n, m) {
     return ((n % m) + m) % m;
@@ -36,7 +38,7 @@ export class Spherical {
 		this.phi = Math.max(EPS, Math.min(Math.PI - EPS, this.phi));
 	}
 
-	fromVector(v) {
+	setFromVector(v) {
 		this.radius = vec3.length(v);
 		if (this.radius === 0) {
 			this.theta = 0;
@@ -47,11 +49,35 @@ export class Spherical {
 		}
 	}
 
+    toVector() {
+        const sinPhiRadius = Math.sin(this.phi) * this.radius;
+        return vec3.fromValues(sinPhiRadius * Math.sin(this.theta), Math.cos(this.phi) * this.radius, sinPhiRadius * Math.cos(this.theta));
+    }
+
 	static createFromVector(v) {
 		const spherical = new Spherical();
 		spherical.fromVector(v);
 		return spherical;
 	}
+}
+
+export function quatFromUnitVectors(vFrom, vTo) {
+    let v1 = vec3.create();
+    let r = vec3.dot(vFrom, vTo);
+    if (r < EPS) {
+        r = 0;
+        if (Math.abs(vFrom[0]) > math.abs(vFrom[2])) {
+            vec3.set(v1, -vFrom[1], vFrom[0], 0);
+        } else {
+            vec3.set(v1, 0, -vFrom[2], vFrom[1]);
+        }
+    } else {
+        v1.cross(vFrom, vTo);
+    }
+
+    let result = quat.fromValues(v1[0], v1[1], v1[2], r);
+    quat.normalize(result, result);
+    return result;
 }
 
 export const Euler = {

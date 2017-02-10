@@ -20,6 +20,9 @@ export default class Transform {
         this._up      = up      || vec3.fromValues(0, 1, 0);
         this._right   = right   || vec3.fromValues(1, 0, 0);
         this._forward = forward || vec3.fromValues(0, 0, 1);
+        vec3.normalize(this._up, this._up);
+        vec3.normalize(this._right, this.right);
+        vec3.normalize(this._forward, this._forward);
         if (typeof up === 'undefined' && typeof right === 'undefined' && typeof forward === 'undefined') {
             return;
         }
@@ -30,11 +33,13 @@ export default class Transform {
         }
         if (typeof right === 'undefined') {
             vec3.cross(this._right, this._up, this._forward);
-            vec3.normalize()
+            vec3.normalize(this._right, this._right);
+            return;
         }
         if (typeof up === 'undefined') {
             vec3.cross(this._up, this._forward, this._right);
             vec3.normalize(this._up, this._up);
+            return;
         }
     }
 

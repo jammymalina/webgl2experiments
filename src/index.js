@@ -15,7 +15,7 @@ window.addEventListener('load', function() {
         scene.camera.setViewport(500, 500);
         const loop = new RenderLoop(deltaTime => {
             scene.render();
-            scene.camera.update(deltaTime);
+            //scene.camera.update(deltaTime);
             //console.log(deltaTime);
         });
         loop.start();

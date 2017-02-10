@@ -5,6 +5,7 @@ import { GLTexture2d, GLSampler } from './tex2d';
 import { hasProps } from './utils';
 import BasicMesh, { makeMeshRequest } from './mesh';
 import { MouseInput } from './input';
+import { PerspectiveCamera, OrbitControls } from './camera/camera';
 
 export async function loadScene(gl, sceneURL, progress) {
     const scene = new Scene(gl);
@@ -120,7 +121,10 @@ export default class Scene {
         this.samplers = new Map();
         this.shaders = new Map();
         this.materials = new Map();
-        this.camera = new MouseOrbitCamera(new Transform({}), new Transform({rotation: [Math.PI / 2, 0, Math.PI / 2], position: [0, -2, -2]}), 500, 500);
+        this.camera = new PerspectiveCamera({
+            viewportWidth: 500,
+            viewportHeight: 500
+        });
 
         this.samplers.set('linear', GLSampler.linearSampler(this.gl));
     }
@@ -173,8 +177,8 @@ export default class Scene {
         shader.use();
 
         shader.setUniform_mat4('perspective_matrix', this.camera.projectionMatrix);
-        shader.setUniform_mat4('model_view_matrix', this.camera.transform.mat);
-        shader.setUniform_mat4('normal_matrix', this.camera.transform.mat);
+        shader.setUniform_mat4('model_view_matrix', mat4.create());
+        shader.setUniform_mat4('normal_matrix', mat4.create());
         shader.setUniform_int('diffuse_texture', 0);
         shader.setUniform_vec3('light_direction_view', [1, 1, 1]);
 
