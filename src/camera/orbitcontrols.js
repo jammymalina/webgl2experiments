@@ -1,6 +1,6 @@
-import { vec3, vec2 } from 'gl-matrix';
+import { vec3, vec2, quat } from 'gl-matrix';
 import { ArrowKey, MouseButton } from '../input';
-import { Spherical, quatFromUnitVectors } from '../math';
+import { Spherical, quatFromUnitVectors, EPS } from '../math';
 
 const STATE = {
     NONE: -1, ROTATE: 0, DOLLY: 1, PAN: 2,
@@ -60,7 +60,17 @@ export class OrbitControls {
 
         this.target0 = vec3.clone(this.target);
         this.position0 = vec3.clone(this.camera.transform.position);
-        this.zoom0 = this.object.zoom;
+        this.zoom0 = this.camera.zoom;
+
+        this.offset = vec3.create();
+        this.q = quatFromUnitVectors(this.camera.transform.up, vec3.fromValues(0, 1, 0));
+        this.qInverse = quat.create();
+        quat.invert(this.qInverse, this.q);
+
+        this.lastPosition = vec3.create();
+        this.lastQuaternion = quat.create();
+
+        this.position = this.camera.transform.position;
     }
 
     reset() {
@@ -75,20 +85,12 @@ export class OrbitControls {
     }
 
     update(timeDelta) {
-        let offset = vec3.create();
-        let q = quatFromUnitVectors(this.camera.transform.up, vec3.fromValues(0, 1, 0));
-        let qInverse = quat.create();
-        quat.invert(qInverse, q);
 
-        let lastPosition = vec3.create();
-        let lastQuaternion = quat.create();
+        vec3.copy(this.offset, this.position);
+        vec3.sub(this.offset, this.offset, this.target);
+        vec3.transformQuat(this.offset, this.offset, this.q);
 
-        let position = this.camera.transform.position;
-        vec3.copy(offset, position);
-        vec3.sub(offset, offset, this.target);
-        vec3.transformQuat(offset, offset, q);
-
-        this.spherical.setFromVector(offset);
+        this.spherical.setFromVector(this.offset);
 
         if (this.autoRotate && this.state === STATE.NONE) {
             this.rotateLeft(this.getAutoRotationAngle(timeDelta));
@@ -106,7 +108,37 @@ export class OrbitControls {
         this.spherical.radius *= scale;
 
         this.spherical.radius = clamp(this.spherical.radius, this.minDistance, this.maxDistance);
+        vec3.add(this.target, this.target, this.panOffset);
 
+        this.spherical.setVectorFromSpherical(this.offset);
+        vec3.transformQuat(this.offset, this.offset, this.qInverse);
+
+        vec3.copy(this.position, this.target);
+        vec3.add(this.position, this.position, this.offset);
+
+        this.camera.lookAt(this.target);
+
+        if (this.enableDamping) {
+            this.sphericalDelta.theta *= (1 - this.dampingFactor);
+            this.sphericalDelta.phi   *= (1 - this.dampingFactor);
+        } else {
+            this.sphericalDelta.set(0, 0, 0);
+        }
+
+        this.scale = 1;
+        vec3.set(this.panOffset, 0, 0, 0);
+
+        if (this.zoomChanged ||
+            vec3.squaredDistance(this.lastPosition, this.camera.transform.position) > EPS ||
+            8 * (1 - quat.dot(this.lastQuaternion, this.camera.transform.rotation)) > EPS
+        ) {
+            vec3.copy(this.lastPosition, this.camera.position);
+            quat.copy(this.lastQuaternion, this.camera.transform.rotation);
+            this.zoomChanged = false;
+            return true;
+        }
+
+        return false;
     }
 
     get polarAngle() {

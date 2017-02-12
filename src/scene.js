@@ -5,7 +5,8 @@ import { GLTexture2d, GLSampler } from './tex2d';
 import { hasProps } from './utils';
 import BasicMesh, { makeMeshRequest } from './mesh';
 import { MouseInput } from './input';
-import { PerspectiveCamera, OrbitControls } from './camera/camera';
+import { PerspectiveCamera } from './camera/camera';
+import { OrbitControls } from './camera/orbitcontrols';
 
 export async function loadScene(gl, sceneURL, progress) {
     const scene = new Scene(gl);

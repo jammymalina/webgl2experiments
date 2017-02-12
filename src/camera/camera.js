@@ -18,6 +18,12 @@ export default class Camera {
         this._viewportHeight = viewportHeight || 1;
     }
 
+    lookAt(target) {
+        let out = mat4.create();
+        mat4.lookAt(out, this.transform.position, target, this.transform.up);
+        mat4.getRotation(this.transform.rotation, out);
+    }
+
     get type() {
         return this._type;
     }

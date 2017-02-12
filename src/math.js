@@ -33,6 +33,12 @@ export class Spherical {
 		this.theta  = otherSpherical.theta;
 	}
 
+	set(radius, phi, theta) {
+		this.radius = radius;
+		this.theta  = theta;
+		this.phi    = phi;
+	}
+
 	// restrict phi to be between EPS and PI-EPS
 	adjustPhi() {
 		this.phi = Math.max(EPS, Math.min(Math.PI - EPS, this.phi));
@@ -50,8 +56,16 @@ export class Spherical {
 	}
 
     toVector() {
-        const sinPhiRadius = Math.sin(this.phi) * this.radius;
-        return vec3.fromValues(sinPhiRadius * Math.sin(this.theta), Math.cos(this.phi) * this.radius, sinPhiRadius * Math.cos(this.theta));
+        let result = vec3.create();
+		this.setVectorFromSpherical(result);
+		return result;
+    }
+
+    setVectorFromSpherical(out) {
+		const sinPhiRadius = Math.sin(this.phi) * this.radius;
+		out[0] = sinPhiRadius * Math.sin(this.theta);
+		out[1] = Math.cos(this.phi) * this.radius;
+		out[2] = sinPhiRadius * Math.cos(this.theta);
     }
 
 	static createFromVector(v) {
